@@ -179,11 +179,16 @@ const addVoucher = async (req, res) => {
     });
   }
 };
-
-// Get All Vouchers
+ 
 const getVouchers = async (req, res) => {
   try {
-    const vouchers = await getAllVouchers();
+    const { voucher_type, start_date, end_date } = req.query;
+
+    const vouchers = await getAllVouchers({
+      voucherType: voucher_type || "",
+      startDate: start_date || "",
+      endDate: end_date || "",
+    });
 
     return res.status(200).json({
       success: true,

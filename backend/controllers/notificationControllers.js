@@ -6,29 +6,100 @@ const {
   deleteNotification,
 } = require("../models/notificationModel");
 
+const { getAllRoles } = require("../models/roleModel");
+ 
+const validateRoles = async (role) => {
+  if (!role) {
+    return null;
+  }
+
+  let roles;
+
+  if (Array.isArray(role)) {
+    roles = role;
+  } else {
+    roles = String(role)
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  roles = roles
+    .map((item) => Number(item))
+    .filter((item) => Number.isInteger(item));
+
+  if (roles.length === 0) {
+    return null;
+  }
+
+  const allowedRoles = await getAllRoles();
+
+  const allowedRoleIds = allowedRoles.map((item) => Number(item.id));
+
+  const invalidRoles = roles.filter(
+    (item) => !allowedRoleIds.includes(item)
+  );
+
+  if (invalidRoles.length > 0) {
+    return null;
+  }
+
+  return roles;
+};
+
 // Add Notification
 const addNotification = async (req, res) => {
   try {
-    const { title, notify, role, status } = req.body;
-
-    if (!title || !notify || !role) {
-      return res.status(400).json({
-        success: false,
-        message: "Title, notify and role are required",
-      });
-    }
-
-    const notificationId = await createNotification(
+    const {
       title,
       notify,
       role,
-      status ?? 1,
+      status,
+    } = req.body;
+
+    if (!title || !String(title).trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Title is required",
+      });
+    }
+
+    if (String(title).trim().length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must not exceed 100 characters",
+      });
+    }
+
+    if (!notify || !String(notify).trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Notification is required",
+      });
+    }
+
+    const roles = await validateRoles(role);
+
+    if (!roles || roles.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one valid role is required",
+      });
+    }
+
+    const result = await createNotification(
+      String(title).trim(),
+      notify,
+      roles.join(","),
+      status ?? 1
     );
 
     res.status(201).json({
       success: true,
       message: "Notification created successfully",
-      id: notificationId,
+      data: {
+        id: result.insertId,
+      },
     });
   } catch (error) {
     console.error("Add Notification Error:", error);
@@ -87,20 +158,50 @@ const getNotification = async (req, res) => {
   }
 };
 
-// Update Notification
+// Edit Notification
 const editNotification = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, notify, role, status } = req.body;
 
-    if (!title || !notify || !role) {
+    const {
+      title,
+      notify,
+      role,
+      status,
+    } = req.body;
+
+    if (!title || !String(title).trim()) {
       return res.status(400).json({
         success: false,
-        message: "Title, notify and role are required",
+        message: "Title is required",
       });
     }
 
-    const existingNotification = await getNotificationById(id);
+    if (String(title).trim().length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must not exceed 100 characters",
+      });
+    }
+
+    if (!notify || !String(notify).trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Notification is required",
+      });
+    }
+
+    const roles = await validateRoles(role);
+
+    if (!roles || roles.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one valid role is required",
+      });
+    }
+
+    const existingNotification =
+      await getNotificationById(id);
 
     if (!existingNotification) {
       return res.status(404).json({
@@ -109,20 +210,21 @@ const editNotification = async (req, res) => {
       });
     }
 
-    await updateNotification(
+    const result = await updateNotification(
       id,
-      title,
+      String(title).trim(),
       notify,
-      role,
-      status ?? existingNotification.status,
+      roles.join(","),
+      status ?? existingNotification.status
     );
 
     res.status(200).json({
       success: true,
       message: "Notification updated successfully",
+      data: result,
     });
   } catch (error) {
-    console.error("Update Notification Error:", error);
+    console.error("Edit Notification Error:", error);
 
     res.status(500).json({
       success: false,
@@ -136,7 +238,8 @@ const removeNotification = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const existingNotification = await getNotificationById(id);
+    const existingNotification =
+      await getNotificationById(id);
 
     if (!existingNotification) {
       return res.status(404).json({

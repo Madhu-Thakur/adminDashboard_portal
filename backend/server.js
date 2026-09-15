@@ -13,6 +13,7 @@ const invoiceRoutes = require("./routes/invoiceRoutes");
 const voucherRoutes = require("./routes/voucherRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const roleRoutes = require("./routes/roleRoutes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/invoices", invoiceRoutes);
 app.use("/api/vouchers", voucherRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/roles", roleRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/", (req, res) => {

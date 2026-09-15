@@ -1,22 +1,44 @@
 const db = require("../config/db");
 
 // Create Announcement
-const createAnnouncement = async (type, announce, role, status) => {
+const createAnnouncement = async (
+  announce,
+  role,
+  type,
+  expiryDate,
+  expiryTime,
+  status
+) => {
   const [result] = await db.query(
-    `INSERT INTO announcement (type, announce, role, status)
-     VALUES (?, ?, ?, ?)`,
-    [type, announce, role, status],
+    `INSERT INTO announcement
+      (announce, role, type, expiry_date, expiry_time, status)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      announce,
+      role,
+      type,
+      expiryDate,
+      expiryTime,
+      status,
+    ]
   );
 
-  return result.insertId;
+  return result;
 };
 
 // Get All Announcements
 const getAllAnnouncements = async () => {
   const [rows] = await db.query(
-    `SELECT id, type, announce, role, status
+    `SELECT
+       id,
+       announce,
+       role,
+       type,
+       expiry_date,
+       expiry_time,
+       status
      FROM announcement
-     ORDER BY id DESC`,
+     ORDER BY id DESC`
   );
 
   return rows;
@@ -25,10 +47,17 @@ const getAllAnnouncements = async () => {
 // Get Announcement By ID
 const getAnnouncementById = async (id) => {
   const [rows] = await db.query(
-    `SELECT id, type, announce, role, status
+    `SELECT
+       id,
+       announce,
+       role,
+       type,
+       expiry_date,
+       expiry_time,
+       status
      FROM announcement
      WHERE id = ?`,
-    [id],
+    [id]
   );
 
   return rows[0];
@@ -37,16 +66,32 @@ const getAnnouncementById = async (id) => {
 // Update Announcement
 const updateAnnouncement = async (
   id,
-  type,
   announce,
   role,
-  status,
+  type,
+  expiryDate,
+  expiryTime,
+  status
 ) => {
   const [result] = await db.query(
     `UPDATE announcement
-     SET type = ?, announce = ?, role = ?, status = ?
+     SET
+       announce = ?,
+       role = ?,
+       type = ?,
+       expiry_date = ?,
+       expiry_time = ?,
+       status = ?
      WHERE id = ?`,
-    [type, announce, role, status, id],
+    [
+      announce,
+      role,
+      type,
+      expiryDate,
+      expiryTime,
+      status,
+      id,
+    ]
   );
 
   return result;
@@ -57,7 +102,7 @@ const deleteAnnouncement = async (id) => {
   const [result] = await db.query(
     `DELETE FROM announcement
      WHERE id = ?`,
-    [id],
+    [id]
   );
 
   return result;

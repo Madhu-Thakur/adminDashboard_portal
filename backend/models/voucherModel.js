@@ -206,40 +206,99 @@ const createVoucher = async (voucherData) => {
   }
 };
  
-const getAllVouchers = async () => {
-  const [rows] = await db.execute(
-    `
-      SELECT
-        v.id,
-        v.voucher_type,
-        v.serial_number,
-        v.transaction_number,
-        v.transaction_date,
-        v.transaction_type,
-        v.invoice_id,
-        v.customer_id,
-        v.amount,
-        v.cgst,
-        v.sgst,
-        v.igst,
-        v.narration,
-        v.created_at,
-        v.updated_at,
-        c.customer_name,
-        i.invoice_number,
-        i.invoice_date
-      FROM vouchers v
-      LEFT JOIN customers c
-        ON c.id = v.customer_id
-      LEFT JOIN invoices i
-        ON i.id = v.invoice_id
-      ORDER BY v.id DESC
-    `,
-  );
+// const getAllVouchers = async () => {
+//   const [rows] = await db.execute(
+//     `
+//       SELECT
+//         v.id,
+//         v.voucher_type,
+//         v.serial_number,
+//         v.transaction_number,
+//         v.transaction_date,
+//         v.transaction_type,
+//         v.invoice_id,
+//         v.customer_id,
+//         v.amount,
+//         v.cgst,
+//         v.sgst,
+//         v.igst,
+//         v.narration,
+//         v.created_at,
+//         v.updated_at,
+//         c.customer_name,
+//         i.invoice_number,
+//         i.invoice_date
+//       FROM vouchers v
+//       LEFT JOIN customers c
+//         ON c.id = v.customer_id
+//       LEFT JOIN invoices i
+//         ON i.id = v.invoice_id
+//       ORDER BY v.id DESC
+//     `,
+//   );
+
+//   return rows;
+// };
+const getAllVouchers = async ({
+  voucherType = "",
+  startDate = "",
+  endDate = "",
+} = {}) => {
+  let query = `
+    SELECT
+      v.id,
+      v.voucher_type,
+      v.serial_number,
+      v.transaction_number,
+      v.transaction_date,
+      v.transaction_type,
+      v.invoice_id,
+      v.customer_id,
+      v.amount,
+      v.cgst,
+      v.sgst,
+      v.igst,
+      v.narration,
+      v.created_at,
+      v.updated_at,
+      c.customer_name,
+      i.invoice_number,
+      i.invoice_date
+    FROM vouchers v
+    LEFT JOIN customers c
+      ON c.id = v.customer_id
+    LEFT JOIN invoices i
+      ON i.id = v.invoice_id
+    WHERE 1 = 1
+  `;
+
+  const params = [];
+
+  // Voucher Type filter
+  if (voucherType) {
+    query += ` AND v.voucher_type = ?`;
+    params.push(voucherType);
+  }
+
+  // Start Date filter
+  if (startDate) {
+    query += ` AND DATE(v.transaction_date) >= ?`;
+    params.push(startDate);
+  }
+
+  // End Date filter
+  if (endDate) {
+    query += ` AND DATE(v.transaction_date) <= ?`;
+    params.push(endDate);
+  }
+
+  query += ` ORDER BY v.id DESC`;
+
+  const [rows] = await db.execute(query, params);
 
   return rows;
-};
- 
+}; 
+
 const getAvailableSaleInvoices = async () => {
   const [rows] = await db.execute(
     `

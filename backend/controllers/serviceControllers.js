@@ -6,8 +6,7 @@ const {
   updateService,
   deleteService,
 } = require("../models/serviceModel");
-
-// Create Service
+ 
 const addService = async (req, res) => {
   try {
     const {

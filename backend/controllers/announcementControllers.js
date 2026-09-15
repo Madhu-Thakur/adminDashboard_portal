@@ -6,29 +6,102 @@ const {
   deleteAnnouncement,
 } = require("../models/announcementModel");
 
+const { getAllRoles } = require("../models/roleModel");
+
+const ALLOWED_TYPES = ["message", "alert"];
+
+// Validate Role IDs From Roles Table
+const validateRoles = async (role) => {
+  if (!role) {
+    return null;
+  }
+
+  let roles;
+
+  if (Array.isArray(role)) {
+    roles = role;
+  } else {
+    roles = String(role)
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  roles = roles
+    .map((item) => Number(item))
+    .filter((item) => Number.isInteger(item));
+
+  if (roles.length === 0) {
+    return null;
+  }
+
+  const allowedRoles = await getAllRoles();
+
+  const allowedRoleIds = allowedRoles.map((item) => Number(item.id));
+
+  const invalidRoles = roles.filter(
+    (item) => !allowedRoleIds.includes(item)
+  );
+
+  if (invalidRoles.length > 0) {
+    return null;
+  }
+
+  return roles;
+};
+
 // Add Announcement
 const addAnnouncement = async (req, res) => {
   try {
-    const { type, announce, role, status } = req.body;
+    const {
+      announce,
+      role,
+      type,
+      expiry_date,
+      expiry_time,
+      status,
+    } = req.body;
 
-    if (!type || !announce || !role) {
+    if (!announce || !String(announce).trim()) {
       return res.status(400).json({
         success: false,
-        message: "Type, announce and role are required",
+        message: "Announcement is required",
       });
     }
 
-    const announcementId = await createAnnouncement(
-      type,
-      announce,
-      role,
-      status ?? 1,
+    const roles = await validateRoles(role);
+
+    if (!roles || roles.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one valid role is required",
+      });
+    }
+
+    const announcementType = String(type || "message").toLowerCase();
+
+    if (!ALLOWED_TYPES.includes(announcementType)) {
+      return res.status(400).json({
+        success: false,
+        message: "Type must be Message or Alert",
+      });
+    }
+
+    const result = await createAnnouncement(
+      String(announce).trim(),
+      roles.join(","),
+      announcementType,
+      expiry_date || null,
+      expiry_time || null,
+      status ?? 1
     );
 
     res.status(201).json({
       success: true,
       message: "Announcement created successfully",
-      id: announcementId,
+      data: {
+        id: result.insertId,
+      },
     });
   } catch (error) {
     console.error("Add Announcement Error:", error);
@@ -87,16 +160,42 @@ const getAnnouncement = async (req, res) => {
   }
 };
 
-// Update Announcement
+// Edit Announcement
 const editAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
-    const { type, announce, role, status } = req.body;
 
-    if (!type || !announce || !role) {
+    const {
+      announce,
+      role,
+      type,
+      expiry_date,
+      expiry_time,
+      status,
+    } = req.body;
+
+    if (!announce || !String(announce).trim()) {
       return res.status(400).json({
         success: false,
-        message: "Type, announce and role are required",
+        message: "Announcement is required",
+      });
+    }
+
+    const roles = await validateRoles(role);
+
+    if (!roles || roles.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one valid role is required",
+      });
+    }
+
+    const announcementType = String(type || "message").toLowerCase();
+
+    if (!ALLOWED_TYPES.includes(announcementType)) {
+      return res.status(400).json({
+        success: false,
+        message: "Type must be Message or Alert",
       });
     }
 
@@ -109,20 +208,23 @@ const editAnnouncement = async (req, res) => {
       });
     }
 
-    await updateAnnouncement(
+    const result = await updateAnnouncement(
       id,
-      type,
-      announce,
-      role,
-      status ?? existingAnnouncement.status,
+      String(announce).trim(),
+      roles.join(","),
+      announcementType,
+      expiry_date || null,
+      expiry_time || null,
+      status ?? existingAnnouncement.status
     );
 
     res.status(200).json({
       success: true,
       message: "Announcement updated successfully",
+      data: result,
     });
   } catch (error) {
-    console.error("Update Announcement Error:", error);
+    console.error("Edit Announcement Error:", error);
 
     res.status(500).json({
       success: false,

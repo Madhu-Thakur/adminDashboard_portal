@@ -1,22 +1,38 @@
 const db = require("../config/db");
 
 // Create Notification
-const createNotification = async (title, notify, role, status) => {
+const createNotification = async (
+  title,
+  notify,
+  role,
+  status
+) => {
   const [result] = await db.query(
-    `INSERT INTO notification (title, notify, role, status)
+    `INSERT INTO notification
+      (title, notify, role, status)
      VALUES (?, ?, ?, ?)`,
-    [title, notify, role, status],
+    [
+      title,
+      notify,
+      role,
+      status,
+    ]
   );
 
-  return result.insertId;
+  return result;
 };
 
 // Get All Notifications
 const getAllNotifications = async () => {
   const [rows] = await db.query(
-    `SELECT id, title, notify, role, status
+    `SELECT
+       id,
+       title,
+       notify,
+       role,
+       status
      FROM notification
-     ORDER BY id DESC`,
+     ORDER BY id DESC`
   );
 
   return rows;
@@ -25,10 +41,15 @@ const getAllNotifications = async () => {
 // Get Notification By ID
 const getNotificationById = async (id) => {
   const [rows] = await db.query(
-    `SELECT id, title, notify, role, status
+    `SELECT
+       id,
+       title,
+       notify,
+       role,
+       status
      FROM notification
      WHERE id = ?`,
-    [id],
+    [id]
   );
 
   return rows[0];
@@ -40,13 +61,23 @@ const updateNotification = async (
   title,
   notify,
   role,
-  status,
+  status
 ) => {
   const [result] = await db.query(
     `UPDATE notification
-     SET title = ?, notify = ?, role = ?, status = ?
+     SET
+       title = ?,
+       notify = ?,
+       role = ?,
+       status = ?
      WHERE id = ?`,
-    [title, notify, role, status, id],
+    [
+      title,
+      notify,
+      role,
+      status,
+      id,
+    ]
   );
 
   return result;
@@ -57,7 +88,7 @@ const deleteNotification = async (id) => {
   const [result] = await db.query(
     `DELETE FROM notification
      WHERE id = ?`,
-    [id],
+    [id]
   );
 
   return result;
