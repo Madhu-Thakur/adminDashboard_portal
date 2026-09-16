@@ -1,4 +1,4 @@
-const {
+ const {
   createInvoice,
   getAllInvoices,
   getInvoicesByCustomerId,
@@ -118,6 +118,65 @@ const validateItems = (items) => {
   }
 };
 
+/*
+ * Calculate invoice item amounts from taxable amount.
+ *
+ * Item 2 is optional.
+ *
+ * Example:
+ * Grand Total = 23600
+ * Taxable Amount = 20000
+ * Item 2 = 7000
+ *
+ * Item 1 = 20000 - 7000 = 13000
+ * Item 2 = 7000
+ *
+ * If Item 2 is blank:
+ * Item 1 = full taxable amount
+ * Item 2 = 0
+ */
+const calculateItemAmounts = (items, taxableAmount) => {
+  const item2 = items[1];
+
+  const item2Amount =
+    item2 &&
+    item2.amount !== undefined &&
+    item2.amount !== null &&
+    item2.amount !== ""
+      ? Number(item2.amount)
+      : 0;
+
+  if (!Number.isFinite(item2Amount) || item2Amount < 0) {
+    throw new Error("Item 2 amount must be a valid non-negative amount");
+  }
+
+  if (item2Amount > taxableAmount) {
+    throw new Error(
+      "Item 2 amount cannot be greater than taxable amount",
+    );
+  }
+
+  const item1Amount = taxableAmount - item2Amount;
+
+  const calculatedItems = [
+    {
+      item_name: items[0].item_name.trim(),
+      hsn: items[0].hsn || null,
+      amount: Number(item1Amount.toFixed(2)),
+    },
+  ];
+ 
+  if (item2 && item2.item_name && item2.item_name.trim()) {
+    calculatedItems.push({
+      item_name: item2.item_name.trim(),
+      hsn: item2.hsn || null,
+      amount: Number(item2Amount.toFixed(2)),
+    });
+  }
+
+  return calculatedItems;
+};
+
 const addInvoice = async (req, res) => {
   try {
     const {
@@ -189,13 +248,16 @@ const addInvoice = async (req, res) => {
       gstInfo.isSameState,
     );
 
-    const calculatedItems = items.map((item, index) => ({
-      item_name: item.item_name.trim(),
+    let calculatedItems;
 
-      hsn: item.hsn || null,
-
-      amount: index === 0 ? gst.subtotal : 0,
-    }));
+    try {
+      calculatedItems = calculateItemAmounts(items, gst.subtotal);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
 
     const result = await createInvoice(
       {
@@ -244,6 +306,8 @@ const addInvoice = async (req, res) => {
         igst: gst.igst,
 
         grand_total: gst.grand_total,
+
+        items: calculatedItems,
       },
     });
   } catch (error) {
@@ -405,26 +469,22 @@ const editInvoice = async (req, res) => {
 
     const gstInfo = await getGSTType(address_id);
 
-    if (!gstInfo.gstApplicable) {
-      return res.status(400).json({
-        success: false,
-        message: "GST calculation is not applicable for this address country",
-      });
-    }
-
     const gst = calculateGSTFromGrandTotal(
       grand_total,
       gstInfo.gstApplicable,
       gstInfo.isSameState,
     );
 
-    const calculatedItems = items.map((item, index) => ({
-      item_name: item.item_name.trim(),
+    let calculatedItems;
 
-      hsn: item.hsn || null,
-
-      amount: index === 0 ? gst.subtotal : 0,
-    }));
+    try {
+      calculatedItems = calculateItemAmounts(items, gst.subtotal);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
 
     const updated = await updateInvoice(
       id,
@@ -479,6 +539,8 @@ const editInvoice = async (req, res) => {
         igst: gst.igst,
 
         grand_total: gst.grand_total,
+
+        items: calculatedItems,
       },
     });
   } catch (error) {
