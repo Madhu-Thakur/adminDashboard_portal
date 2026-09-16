@@ -183,9 +183,11 @@ const NotificationTable = () => {
                 />
               </td>
 
-              <td className="px-4 py-4 text-sm text-gray-600 dark:text-white/70">
-                {getRoleNames(notification.role)}
-              </td>
+             <td className="px-4 py-4">
+  <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-deem-red dark:bg-red-950/30 dark:text-red-400">
+    {getRoleNames(notification.role)}
+  </span>
+</td>
 
               <td className="px-4 py-4">
                 <span

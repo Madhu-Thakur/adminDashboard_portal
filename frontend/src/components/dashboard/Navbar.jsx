@@ -55,12 +55,7 @@ const Navbar = ({ onToggleMobileMenu }) => {
     };
   }, []);
  
-  const getNotificationText = (html) => {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = html || "";
-
-    return tempDiv.textContent || tempDiv.innerText || "";
-  };
+ 
 
   return (
     <header
@@ -216,17 +211,7 @@ const Navbar = ({ onToggleMobileMenu }) => {
                   Notifications
                 </h3>
 
-                {notifications.length > 0 && (
-                  <span
-                    className="
-                      text-xs
-                      text-gray-500
-                      dark:text-gray-400
-                    "
-                  >
-                    {notifications.length} active
-                  </span>
-                )}
+             
               </div>
 
               {/* Notification List */}
@@ -272,16 +257,7 @@ const Navbar = ({ onToggleMobileMenu }) => {
                         {notification.title}
                       </p>
 
-                      <p
-                        className="
-                          text-sm
-                          text-gray-600
-                          dark:text-gray-300
-                          leading-5
-                        "
-                      >
-                        {getNotificationText(notification.notify)}
-                      </p>
+                     
                     </div>
                   ))
                 )}
