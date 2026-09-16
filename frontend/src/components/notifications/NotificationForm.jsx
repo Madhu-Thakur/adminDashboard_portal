@@ -24,7 +24,7 @@ const NotificationForm = ({
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetc(ROLE_API_URL);
+        const response = await fetch(ROLE_API_URL);
         const result = await response.json();
 
         if (response.ok && result.success) {

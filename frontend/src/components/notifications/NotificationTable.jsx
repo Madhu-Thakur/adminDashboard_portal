@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import { API_BASE_URL } from "../../utils/api";
+import { API_BASE_URL, ROLE_API_URL } from "../../utils/api";
 
 const NotificationTable = () => {
   const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Fetch notifications
   const fetchNotifications = async () => {
     try {
       setLoading(true);
@@ -32,9 +34,49 @@ const NotificationTable = () => {
     }
   };
 
+  // Fetch roles
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch(ROLE_API_URL);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch roles");
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        setRoles(result.data || []);
+      }
+    } catch (err) {
+      console.error("Fetch Roles Error:", err);
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
+    fetchRoles();
   }, []);
+
+  // Convert role IDs into role names
+  const getRoleNames = (roleValue) => {
+    if (!roleValue) return "-";
+
+    const roleIds = String(roleValue)
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+
+    return roleIds
+      .map((id) => {
+        const role = roles.find(
+          (item) => String(item.id) === String(id)
+        );
+
+        return role?.display_name || id;
+      })
+      .join(", ");
+  };
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
@@ -142,7 +184,7 @@ const NotificationTable = () => {
               </td>
 
               <td className="px-4 py-4 text-sm text-gray-600 dark:text-white/70">
-                {notification.role}
+                {getRoleNames(notification.role)}
               </td>
 
               <td className="px-4 py-4">
