@@ -19,7 +19,7 @@ const InvoiceSection = ({ customerId }) => {
       setError("");
 
       const response = await fetch(
-        `${INVOICE_API_URL}}/customer/${customerId}`,
+        `${INVOICE_API_URL}/customer/${customerId}`,
       );
 
       const result = await response.json();

@@ -17,6 +17,7 @@ import Announcements from "./pages/Announcements";
 import AddAnnouncement from "./pages/AddAnnouncement";
 import Notifications from "./pages/Notifications";
 import AddNotification from "./pages/AddNotification";
+import JoiningCandidates from "./pages/JoiningCandidates";
 
 
 const App = () => {
@@ -33,18 +34,18 @@ const App = () => {
         <Route element={<DashboardLayout />}>
           <Route path="/customers" element={<Customers />} />
 
-<Route
-  path="/announcements"
-  element={<Announcements />}
-/>
+          <Route
+            path="/announcements"
+            element={<Announcements />}
+          />
 
-<Route
-  path="/announcements/add"
-  element={<AddAnnouncement />}
-/>
+          <Route
+            path="/announcements/add"
+            element={<AddAnnouncement />}
+          />
 
-<Route path="/notifications" element={<Notifications />} />
-<Route path="/notifications/add" element={<AddNotification />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/notifications/add" element={<AddNotification />} />
 
           <Route path="/customers/add" element={<AddCustomer />} />
           <Route path="/customers/:id" element={<CustomerDetails />} />
@@ -54,18 +55,21 @@ const App = () => {
           <Route path="/payments/add" element={<AddPayment />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/invoices/add" element={<AddInvoice />} />
+
+          <Route path="/joining-candidates" element={<JoiningCandidates />} />
+
           <Route path="/employees" element={<div>Employees</div>} />
           <Route path="/students" element={<div>Students</div>} />
           <Route path="/users" element={<div>Users</div>} />
           <Route path="/teams" element={<div>Teams</div>} />
-        <Route path="/accounts/voucher" element={<Vouchers />} />
-        <Route path="/accounts/voucher/add" element={<AddVoucher />} />
+          <Route path="/accounts/voucher" element={<Vouchers />} />
+          <Route path="/accounts/voucher/add" element={<AddVoucher />} />
           <Route path="/tasks" element={<div>Tasks</div>} />
           <Route path="/interview" element={<div>Interview</div>} />
-          <Route path="/new-joining" element={<div>New Joining</div>} />
           <Route path="/attendance" element={<div>Attendance</div>} />
           <Route path="/leave" element={<div>Leave</div>} />
         </Route>
+
       </Routes>
     </BrowserRouter>
   );

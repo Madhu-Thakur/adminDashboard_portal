@@ -13,6 +13,7 @@ import {
   ClipboardList,
   Megaphone,
   Bell,
+  UserCheck,
 } from "lucide-react";
 
 export const modules = [
@@ -42,6 +43,11 @@ export const modules = [
   icon: Bell,
   path: "/notifications",
 },
+  {
+    title: "Joining Candidates",
+    icon: UserCheck,
+    path: "/joining-candidates",
+  },
   {
     title: "Employees",
     icon: UserRound,
@@ -78,6 +84,7 @@ export const modules = [
     icon: UserPlus,
     path: "/new-joining",
   },
+   
   {
     title: "Attendance",
     icon: CalendarCheck,

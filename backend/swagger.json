@@ -14,7 +14,9 @@
     "/api/customers": {
       "post": {
         "summary": "Create a new customer",
-        "tags": ["Customers"],
+        "tags": [
+          "Customers"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -39,7 +41,9 @@
       },
       "get": {
         "summary": "Get all customers",
-        "tags": ["Customers"],
+        "tags": [
+          "Customers"
+        ],
         "responses": {
           "200": {
             "description": "Customers fetched successfully"
@@ -50,11 +54,12 @@
         }
       }
     },
-
     "/api/customers/{id}": {
       "get": {
         "summary": "Get customer by ID",
-        "tags": ["Customers"],
+        "tags": [
+          "Customers"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/CustomerId"
@@ -74,7 +79,9 @@
       },
       "put": {
         "summary": "Update customer",
-        "tags": ["Customers"],
+        "tags": [
+          "Customers"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/CustomerId"
@@ -107,7 +114,9 @@
       },
       "delete": {
         "summary": "Delete customer",
-        "tags": ["Customers"],
+        "tags": [
+          "Customers"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/CustomerId"
@@ -126,11 +135,12 @@
         }
       }
     },
-
     "/api/addresses": {
       "post": {
         "summary": "Create a new address",
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -155,7 +165,9 @@
       },
       "get": {
         "summary": "Get all addresses",
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "responses": {
           "200": {
             "description": "Addresses fetched successfully"
@@ -166,11 +178,12 @@
         }
       }
     },
-
     "/api/addresses/customer/{customerId}": {
       "get": {
         "summary": "Get all addresses of a customer",
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/CustomerIdForAddress"
@@ -186,11 +199,12 @@
         }
       }
     },
-
     "/api/addresses/{id}": {
       "get": {
         "summary": "Get address by ID",
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/AddressId"
@@ -210,7 +224,9 @@
       },
       "put": {
         "summary": "Update address",
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/AddressId"
@@ -243,7 +259,9 @@
       },
       "delete": {
         "summary": "Delete address",
-        "tags": ["Addresses"],
+        "tags": [
+          "Addresses"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/AddressId"
@@ -262,11 +280,12 @@
         }
       }
     },
-
     "/api/services": {
       "post": {
         "summary": "Create a new service",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -291,7 +310,9 @@
       },
       "get": {
         "summary": "Get all services",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "responses": {
           "200": {
             "description": "Services fetched successfully"
@@ -302,11 +323,12 @@
         }
       }
     },
-
     "/api/services/customer/{customerId}": {
       "get": {
         "summary": "Get all services of a customer",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/CustomerIdForService"
@@ -322,11 +344,12 @@
         }
       }
     },
-
     "/api/services/{id}": {
       "get": {
         "summary": "Get service by ID",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/ServiceId"
@@ -346,7 +369,9 @@
       },
       "put": {
         "summary": "Update service",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/ServiceId"
@@ -379,7 +404,9 @@
       },
       "delete": {
         "summary": "Delete service",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "parameters": [
           {
             "$ref": "#/components/parameters/ServiceId"
@@ -398,11 +425,12 @@
         }
       }
     },
-
     "/api/invoices": {
       "post": {
         "summary": "Create a new invoice",
-        "tags": ["Invoices"],
+        "tags": [
+          "Invoices"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -427,7 +455,9 @@
       },
       "get": {
         "summary": "Get all invoices",
-        "tags": ["Invoices"],
+        "tags": [
+          "Invoices"
+        ],
         "responses": {
           "200": {
             "description": "Invoices fetched successfully"
@@ -438,11 +468,12 @@
         }
       }
     },
-
     "/api/invoices/{id}": {
       "get": {
         "summary": "Get invoice by ID",
-        "tags": ["Invoices"],
+        "tags": [
+          "Invoices"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -467,22 +498,23 @@
           }
         }
       },
-
       "put": {
         "summary": "Update invoice",
-        "tags": ["Invoices"],
-       "parameters": [
-  {
-    "name": "id",
-    "in": "path",
-    "required": true,
-    "description": "Invoice ID",
-    "schema": {
-      "type": "integer",
-      "example": 1
-    }
-  }
-],
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Invoice ID",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -508,22 +540,23 @@
           }
         }
       },
-
       "delete": {
         "summary": "Delete invoice",
-        "tags": ["Invoices"],
-      "parameters": [
-  {
-    "name": "id",
-    "in": "path",
-    "required": true,
-    "description": "Invoice ID",
-    "schema": {
-      "type": "integer",
-      "example": 1
-    }
-  }
-],
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Invoice ID",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Invoice deleted successfully"
@@ -536,9 +569,258 @@
           }
         }
       }
+    },
+    "/api/joining-candidates": {
+      "get": {
+        "summary": "Get all joining candidates",
+        "tags": [
+          "Joining Candidates"
+        ],
+        "responses": {
+          "200": {
+            "description": "joining candidates fetched successfully"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/joining-candidates/{id}": {
+      "get": {
+        "summary": "Get joining candidate by ID",
+        "tags": [
+          "Joining Candidates"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/JoiningCandidateId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "joining candidate fetched successfully"
+          },
+          "404": {
+            "description": "joining candidate not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update joining candidate",
+        "tags": [
+          "Joining Candidates"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/JoiningCandidateId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/JoiningCandidateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "joining candidate updated successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "joining candidate not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete joining candidate",
+        "tags": [
+          "Joining Candidates"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/JoiningCandidateId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "joining candidate deleted successfully"
+          },
+          "404": {
+            "description": "joining candidate not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/designations": {
+      "post": {
+        "summary": "Create a new designation",
+        "tags": [
+          "Designations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesignationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "designation created successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all designations",
+        "tags": [
+          "Designations"
+        ],
+        "responses": {
+          "200": {
+            "description": "designations fetched successfully"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/designations/{id}": {
+      "get": {
+        "summary": "Get designation by ID",
+        "tags": [
+          "Designations"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DesignationId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "designation fetched successfully"
+          },
+          "404": {
+            "description": "designation not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update designation",
+        "tags": [
+          "Designations"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DesignationId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesignationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "designation updated successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "designation not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete designation",
+        "tags": [
+          "Designations"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DesignationId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "designation deleted successfully"
+          },
+          "404": {
+            "description": "designation not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/join-candidate": {
+      "post": {
+        "summary": "Create a new joining candidate",
+        "tags": [
+          "Joining Candidates"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/JoiningCandidatePostInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Application submitted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
-
   "components": {
     "parameters": {
       "CustomerId": {
@@ -551,7 +833,6 @@
           "example": 1
         }
       },
-
       "CustomerIdForAddress": {
         "name": "customerId",
         "in": "path",
@@ -562,7 +843,6 @@
           "example": 1
         }
       },
-
       "AddressId": {
         "name": "id",
         "in": "path",
@@ -573,7 +853,6 @@
           "example": 1
         }
       },
-
       "CustomerIdForService": {
         "name": "customerId",
         "in": "path",
@@ -584,7 +863,6 @@
           "example": 1
         }
       },
-
       "ServiceId": {
         "name": "id",
         "in": "path",
@@ -594,13 +872,36 @@
           "type": "integer",
           "example": 1
         }
+      },
+      "JoiningCandidateId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Joining Candidate ID",
+        "schema": {
+          "type": "integer",
+          "example": 1
+        }
+      },
+      "DesignationId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Designation ID",
+        "schema": {
+          "type": "integer",
+          "example": 1
+        }
       }
     },
-
     "schemas": {
       "CustomerInput": {
         "type": "object",
-        "required": ["customer_name", "phone", "email"],
+        "required": [
+          "customer_name",
+          "phone",
+          "email"
+        ],
         "properties": {
           "customer_name": {
             "type": "string",
@@ -621,12 +922,14 @@
           },
           "status": {
             "type": "string",
-            "enum": ["Active", "Inactive"],
+            "enum": [
+              "Active",
+              "Inactive"
+            ],
             "example": "Active"
           }
         }
       },
-
       "AddressInput": {
         "type": "object",
         "required": [
@@ -672,10 +975,12 @@
           }
         }
       },
-
       "ServiceInput": {
         "type": "object",
-        "required": ["customer_id", "service_type"],
+        "required": [
+          "customer_id",
+          "service_type"
+        ],
         "properties": {
           "customer_id": {
             "type": "integer",
@@ -710,8 +1015,397 @@
           },
           "service_status": {
             "type": "string",
-            "enum": ["Active", "Inactive", "Expired"],
+            "enum": [
+              "Active",
+              "Inactive",
+              "Expired"
+            ],
             "example": "Active"
+          }
+        }
+      },
+      "JoiningCandidateInput": {
+        "type": "object",
+        "required": [
+          "ename",
+          "fname",
+          "mobile",
+          "gender",
+          "mstatus"
+        ],
+        "properties": {
+          "ename": {
+            "type": "string",
+            "description": "Employee/candidate name (required)",
+            "example": "Rahul Sharma"
+          },
+          "fname": {
+            "type": "string",
+            "description": "Father name (required)",
+            "example": "Ramesh Sharma"
+          },
+          "dob": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of birth, optional. Format YYYY-MM-DD",
+            "example": "1995-06-15"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender (required)",
+            "example": "Male"
+          },
+          "address": {
+            "type": "string",
+            "description": "Address, optional",
+            "example": "42, Sector 15, Vadodara"
+          },
+          "mobile": {
+            "type": "string",
+            "description": "Mobile number (required). Pattern: starts with + or digit, then 7-14 digits/spaces/hyphens",
+            "example": "9876543210"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email, optional. Valid email when provided",
+            "example": "rahul@example.com"
+          },
+          "aadhar": {
+            "type": "string",
+            "description": "Aadhaar number, optional. Exactly 12 digits when provided",
+            "example": "123456789012"
+          },
+          "mstatus": {
+            "type": "string",
+            "description": "Marital status (required)",
+            "example": "Single"
+          },
+          "qual": {
+            "type": "string",
+            "description": "Qualification, optional",
+            "example": "B.Tech"
+          },
+          "hstudy": {
+            "type": "string",
+            "description": "Higher study, optional",
+            "example": "M.Tech"
+          },
+          "linkedin": {
+            "type": "string",
+            "description": "LinkedIn profile URL, optional",
+            "example": "https://linkedin.com/in/rahulsharma"
+          },
+          "photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "Candidate photo file, optional"
+          },
+          "resume": {
+            "type": "string",
+            "format": "binary",
+            "description": "Resume file, optional"
+          },
+          "degree": {
+            "type": "string",
+            "format": "binary",
+            "description": "Degree document, optional"
+          },
+          "pexp": {
+            "type": "string",
+            "description": "Previous experience information, optional",
+            "example": "2 years experience in web development"
+          },
+          "aadharc": {
+            "type": "string",
+            "format": "binary",
+            "description": "Aadhaar copy document, optional"
+          },
+          "sslip": {
+            "type": "string",
+            "format": "binary",
+            "description": "Salary slip document, optional"
+          },
+          "passbook": {
+            "type": "string",
+            "format": "binary",
+            "description": "Bank passbook document, optional"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "description": "Status: 0 = Inactive, 1 = Active",
+            "example": 1
+          }
+        }
+      },
+      "JoiningCandidate": {
+        "type": "object",
+        "properties": {
+          "ename": {
+            "type": "string",
+            "description": "Employee/candidate name (required)",
+            "example": "Rahul Sharma"
+          },
+          "fname": {
+            "type": "string",
+            "description": "Father name (required)",
+            "example": "Ramesh Sharma"
+          },
+          "dob": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of birth, optional. Format YYYY-MM-DD",
+            "example": "1995-06-15"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender (required)",
+            "example": "Male"
+          },
+          "address": {
+            "type": "string",
+            "description": "Address, optional",
+            "example": "42, Sector 15, Vadodara"
+          },
+          "mobile": {
+            "type": "string",
+            "description": "Mobile number (required). Pattern: starts with + or digit, then 7-14 digits/spaces/hyphens",
+            "example": "9876543210"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email, optional. Valid email when provided",
+            "example": "rahul@example.com"
+          },
+          "aadhar": {
+            "type": "string",
+            "description": "Aadhaar number, optional. Exactly 12 digits when provided",
+            "example": "123456789012"
+          },
+          "mstatus": {
+            "type": "string",
+            "description": "Marital status (required)",
+            "example": "Single"
+          },
+          "qual": {
+            "type": "string",
+            "description": "Qualification, optional",
+            "example": "B.Tech"
+          },
+          "hstudy": {
+            "type": "string",
+            "description": "Higher study, optional",
+            "example": "M.Tech"
+          },
+          "linkedin": {
+            "type": "string",
+            "description": "LinkedIn profile URL, optional",
+            "example": "https://linkedin.com/in/rahulsharma"
+          },
+          "photo": {
+            "type": "string",
+            "description": "Photo file URL/path (plain string, not a file upload), optional",
+            "example": "https://res.cloudinary.com/example/photo.jpg"
+          },
+          "resume": {
+            "type": "string",
+            "description": "Resume file URL/path (plain string, not a file upload), optional",
+            "example": "https://res.cloudinary.com/example/resume.pdf"
+          },
+          "degree": {
+            "type": "string",
+            "description": "Degree file URL/path (plain string, not a file upload), optional",
+            "example": "https://res.cloudinary.com/example/degree.pdf"
+          },
+          "pexp": {
+            "type": "string",
+            "description": "Experience document URL/path (plain string, not a file upload), optional",
+            "example": "https://res.cloudinary.com/example/experience.pdf"
+          },
+          "aadharc": {
+            "type": "string",
+            "description": "Aadhaar copy file URL/path (plain string), optional",
+            "example": "https://res.cloudinary.com/example/aadharc.pdf"
+          },
+          "sslip": {
+            "type": "string",
+            "description": "Salary slip file URL/path (plain string), optional",
+            "example": "https://res.cloudinary.com/example/sslip.pdf"
+          },
+          "passbook": {
+            "type": "string",
+            "description": "Passbook file URL/path (plain string), optional",
+            "example": "https://res.cloudinary.com/example/passbook.pdf"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "description": "Status: 0 = Inactive, 1 = Active",
+            "example": 1
+          },
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "last_update": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-16T10:00:00.000Z"
+          }
+        }
+      },
+      "DesignationInput": {
+        "type": "object",
+        "required": [
+          "des"
+        ],
+        "properties": {
+          "des": {
+            "type": "string",
+            "description": "Designation text (required, non-empty)",
+            "example": "Web Developer"
+          }
+        }
+      },
+      "Designation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "des": {
+            "type": "string",
+            "example": "Web Developer"
+          },
+          "last_update": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-16T10:00:00.000Z"
+          }
+        }
+      },
+      "JoiningCandidatePostInput": {
+        "type": "object",
+        "required": [
+          "ename",
+          "mobile",
+          "email"
+        ],
+        "properties": {
+          "ename": {
+            "type": "string",
+            "description": "Employee/candidate name (required)",
+            "example": "Rahul Sharma"
+          },
+          "fname": {
+            "type": "string",
+            "description": "Father name, optional",
+            "example": "Ramesh Sharma"
+          },
+          "dob": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of birth, optional. Format YYYY-MM-DD",
+            "example": "1995-06-15"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender, optional",
+            "example": "Male"
+          },
+          "address": {
+            "type": "string",
+            "description": "Address, optional",
+            "example": "42, Sector 15, Vadodara"
+          },
+          "mobile": {
+            "type": "string",
+            "description": "Mobile number (required)",
+            "example": "9876543210"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email (required)",
+            "example": "rahul@example.com"
+          },
+          "aadhar": {
+            "type": "string",
+            "description": "Aadhaar number, optional. Exactly 12 digits when provided",
+            "example": "123456789012"
+          },
+          "mstatus": {
+            "type": "string",
+            "description": "Marital status, optional",
+            "example": "Single"
+          },
+          "qual": {
+            "type": "string",
+            "description": "Qualification, optional",
+            "example": "B.Tech"
+          },
+          "hstudy": {
+            "type": "string",
+            "description": "Higher study, optional",
+            "example": "M.Tech"
+          },
+          "linkedin": {
+            "type": "string",
+            "description": "LinkedIn profile URL, optional",
+            "example": "https://linkedin.com/in/rahulsharma"
+          },
+          "photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "Candidate photo file, optional"
+          },
+          "resume": {
+            "type": "string",
+            "format": "binary",
+            "description": "Resume file, optional"
+          },
+          "degree": {
+            "type": "string",
+            "format": "binary",
+            "description": "Degree document, optional"
+          },
+          "pexp": {
+            "type": "string",
+            "description": "Previous experience information, optional",
+            "example": "2 years experience in web development"
+          },
+          "aadharc": {
+            "type": "string",
+            "format": "binary",
+            "description": "Aadhaar copy document, optional"
+          },
+          "sslip": {
+            "type": "string",
+            "format": "binary",
+            "description": "Salary slip document, optional"
+          },
+          "passbook": {
+            "type": "string",
+            "format": "binary",
+            "description": "Bank passbook document, optional"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "description": "Status is set to 0 by the server; this input is not used by the POST API",
+            "example": 1
           }
         }
       }

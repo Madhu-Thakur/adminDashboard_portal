@@ -11,6 +11,8 @@ export const AVAILABLE_SALE_INVOICES_URL = `${API_BASE_URL}/api/vouchers/availab
 export const ROLE_API_URL = `${API_BASE_URL}/api/roles`;
 export const NOTIFICATION_API_URL = `${API_BASE_URL}/api/notifications`;
 export const ANNOUNCEMENT_API_URL = `${API_BASE_URL}/api/announcements`;
+export const JOINING_CANDIDATE_API_URL = `${API_BASE_URL}/api/joining-candidates`;
+export const DESIGNATION_API_URL = `${API_BASE_URL}/api/designations`;
 
 export async function parseJson(response) {
   const contentType = (
@@ -23,7 +25,7 @@ export async function parseJson(response) {
     try {
       detail = (await response.text()).slice(0, 200);
     } catch {
-      // Ignore response body read errors.
+       
     }
 
     throw new Error(

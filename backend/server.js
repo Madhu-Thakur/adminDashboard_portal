@@ -14,6 +14,8 @@ const voucherRoutes = require("./routes/voucherRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const roleRoutes = require("./routes/roleRoutes");
+const joiningCandidateRoutes = require("./routes/joiningCandidateRoutes");
+const designationRoutes = require("./routes/designationRoutes");
 
 const app = express();
 
@@ -28,6 +30,9 @@ app.use("/api/vouchers", voucherRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/roles", roleRoutes);
+// app.use("/api/joining-candidates", joiningCandidateRoutes);
+app.use("/api", joiningCandidateRoutes);
+app.use("/api/designations", designationRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/", (req, res) => {

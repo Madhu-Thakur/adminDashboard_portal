@@ -30,7 +30,8 @@ const getAllNotifications = async () => {
        title,
        notify,
        role,
-       status
+       status,
+       notification_date
      FROM notification
      ORDER BY id DESC`
   );
@@ -46,7 +47,8 @@ const getNotificationById = async (id) => {
        title,
        notify,
        role,
-       status
+       status,
+       notification_date
      FROM notification
      WHERE id = ?`,
     [id]

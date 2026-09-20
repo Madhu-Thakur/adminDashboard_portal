@@ -13,7 +13,7 @@ dist-ssr
 *.local
 
 .env
-
+.test_bom.txt
 boot_out.txt
 backend_run.log
 .git_disabled/
