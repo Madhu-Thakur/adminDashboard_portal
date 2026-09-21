@@ -1,4 +1,10 @@
-﻿import { Search, ChevronLeft, ChevronRight, X } from "lucide-react";
+﻿import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  UserRoundPlus,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   JOINING_CANDIDATE_API_URL,
@@ -14,7 +20,7 @@ const JoiningCandidateTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
- 
+
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [designations, setDesignations] = useState([]);
   const [selectedDesignation, setSelectedDesignation] = useState("");
@@ -30,7 +36,9 @@ const JoiningCandidateTable = () => {
       const result = await parseJson(response);
 
       if (!response.ok || !result.success) {
-        throw new Error(result.message || "Failed to fetch joining candidates");
+        throw new Error(
+          result.message || "Failed to fetch joining candidates",
+        );
       }
 
       setCandidates(Array.isArray(result.data) ? result.data : []);
@@ -77,7 +85,7 @@ const JoiningCandidateTable = () => {
     setSearch(e.target.value);
     setCurrentPage(1);
   };
- 
+
   const handleSaveAsEmployee = async (candidate) => {
     setSelectedCandidate(candidate);
     setSelectedDesignation("");
@@ -101,7 +109,7 @@ const JoiningCandidateTable = () => {
       setDesignationLoading(false);
     }
   };
- 
+
   const handleCloseModal = () => {
     setSelectedCandidate(null);
     setSelectedDesignation("");
@@ -115,7 +123,8 @@ const JoiningCandidateTable = () => {
     }
 
     const selectedDesignationData = designations.find(
-      (designation) => String(designation.id) === String(selectedDesignation),
+      (designation) =>
+        String(designation.id) === String(selectedDesignation),
     );
 
     console.log("Save as Employee:", {
@@ -219,10 +228,6 @@ const JoiningCandidateTable = () => {
                     Marital Status
                   </th>
 
-                  <th className="px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Status
-                  </th>
-
                   <th className="hidden px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 lg:table-cell">
                     Last Updated
                   </th>
@@ -237,7 +242,7 @@ const JoiningCandidateTable = () => {
                 {paginatedCandidates.map((candidate) => (
                   <tr
                     key={candidate.id}
-                    className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition dark:border-gray-800 dark:hover:bg-[#0b0f14]"
+                    className="border-b border-gray-100 last:border-0 transition hover:bg-gray-50/50 dark:border-gray-800 dark:hover:bg-[#0b0f14]"
                   >
                     <td className="px-5 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
                       {candidate.id}
@@ -281,22 +286,17 @@ const JoiningCandidateTable = () => {
                       {candidate.mstatus || "-"}
                     </td>
 
-                    <td className="px-5 py-4 text-center">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-                          Number(candidate.status) === 1
-                            ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400"
-                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                        }`}
-                      >
-                        {Number(candidate.status) === 1 ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-
-                    <td className="hidden px-2 py-3 text-center text-sm text-gray-500 dark:text-gray-400 lg:table-cell">
+                    <td className="hidden px-5 py-4 text-center text-sm text-gray-500 dark:text-gray-400 lg:table-cell">
                       {candidate.last_update
-                        ? new Date(candidate.last_update).toLocaleDateString(
+                        ? new Date(candidate.last_update).toLocaleString(
                             "en-IN",
+                            {
+                              day: "numeric",
+                              month: "numeric",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
                           )
                         : "-"}
                     </td>
@@ -305,9 +305,11 @@ const JoiningCandidateTable = () => {
                       <button
                         type="button"
                         onClick={() => handleSaveAsEmployee(candidate)}
-                        className="cursor-pointer rounded-lg bg-deem-red px-4 py-2 text-xs font-medium text-white transition hover:opacity-90"
+                        title="Save as Employee"
+                        aria-label="Save as Employee"
+                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-deem-red text-white transition hover:bg-[#d94335]"
                       >
-                        Save as Employee
+                        <UserRoundPlus size={17} strokeWidth={1.8} />
                       </button>
                     </td>
                   </tr>
@@ -326,9 +328,11 @@ const JoiningCandidateTable = () => {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.max(1, p - 1))
+                }
                 disabled={currentPage === 1}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-deem-red hover:text-deem-red dark:border-gray-700 dark:text-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-deem-red hover:text-deem-red disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-400"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -339,7 +343,7 @@ const JoiningCandidateTable = () => {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-deem-red hover:text-deem-red dark:border-gray-700 dark:text-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-deem-red hover:text-deem-red disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-400"
               >
                 <ChevronRight size={16} />
               </button>
@@ -370,7 +374,7 @@ const JoiningCandidateTable = () => {
                 <X size={18} />
               </button>
             </div>
- 
+
             <div className="p-6">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Designation
@@ -400,10 +404,12 @@ const JoiningCandidateTable = () => {
               )}
 
               {designationError && (
-                <p className="mt-2 text-sm text-red-500">{designationError}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {designationError}
+                </p>
               )}
             </div>
- 
+
             <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
               <button
                 type="button"

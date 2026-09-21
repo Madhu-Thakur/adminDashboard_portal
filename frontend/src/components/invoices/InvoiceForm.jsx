@@ -11,10 +11,7 @@ import {
   formatCurrency,
 } from "../../utils/invoiceUtils";
 
-import {
-  CUSTOMER_API_URL,
-  ADDRESS_API_URL,
-} from "../../utils/api";
+import { CUSTOMER_API_URL, ADDRESS_API_URL } from "../../utils/api";
 
 const API_CUSTOMERS = CUSTOMER_API_URL;
 const API_ADDRESSES = `${ADDRESS_API_URL}/customer`;
@@ -110,9 +107,7 @@ const InvoiceForm = ({
         setLoadingAddresses(true);
         setApiError("");
 
-        const response = await fetch(
-          `${API_ADDRESSES}/${formData.customerId}`,
-        );
+        const response = await fetch(`${API_ADDRESSES}/${formData.customerId}`);
 
         const result = await response.json();
 
@@ -185,8 +180,7 @@ const InvoiceForm = ({
   const state = selectedAddress?.state?.trim()?.toLowerCase() || "";
 
   const isIndianAddress = country === "india";
-  const isSameState =
-    isIndianAddress && state === DEEM_STATE.toLowerCase();
+  const isSameState = isIndianAddress && state === DEEM_STATE.toLowerCase();
 
   const gstCalculation = calculateGSTFromGrandTotal(
     formData.grandTotal,
@@ -195,9 +189,9 @@ const InvoiceForm = ({
   );
 
   const calculatedAmount = gstCalculation.taxableAmount;
- 
+
   const item2Amt = Number(formData.item2Amount) || 0;
- 
+
   const item1Amt = Math.max(0, calculatedAmount - item2Amt);
 
   const cgst = gstCalculation.cgst;
@@ -223,17 +217,16 @@ const InvoiceForm = ({
       return;
     }
 
-      if (item2Amt > calculatedAmount) {
-    setErrors((prev) => ({
-      ...prev,
-      item2Amount:
-        "Item 2 amount cannot be greater than taxable amount.",
-    }));
-    return;
-  }
+    if (item2Amt > calculatedAmount) {
+      setErrors((prev) => ({
+        ...prev,
+        item2Amount: "Item 2 amount cannot be greater than taxable amount.",
+      }));
+      return;
+    }
 
     const items = [];
- 
+
     if (formData.item1Name.trim()) {
       items.push({
         item_name: formData.item1Name.trim(),
@@ -277,44 +270,44 @@ const InvoiceForm = ({
     onSubmit(invoiceData);
   };
 
- const inputClass = (hasError) => {
-  const classes = [
-    "w-full",
-    "h-11",
-    "px-4",
-    "rounded-xl",
-    "border",
-    "bg-white",
-    "dark:bg-[#0b0f14]",
-    "text-sm",
-    "text-gray-700",
-    "dark:text-gray-200",
-    "outline-none",
-    "transition",
-  ];
+  const inputClass = (hasError) => {
+    const classes = [
+      "w-full",
+      "h-11",
+      "px-4",
+      "rounded-xl",
+      "border",
+      "bg-white",
+      "dark:bg-[#0b0f14]",
+      "text-sm",
+      "text-gray-700",
+      "dark:text-gray-200",
+      "outline-none",
+      "transition",
+    ];
 
-  if (hasError) {
-    classes.push(
-      "border-deem-red",
-      "focus:border-deem-red",
-      "focus:ring-2",
-      "focus:ring-red-100",
-      "dark:focus:ring-red-950/30",
-    );
-  } else {
-    classes.push(
-      "border-gray-200",
-      "dark:border-gray-700",
-      "focus:border-black",
-      "focus:ring-2",
-      "focus:ring-gray-200",
-      "dark:focus:border-white",
-      "dark:focus:ring-gray-700",
-    );
-  }
+    if (hasError) {
+      classes.push(
+        "border-deem-red",
+        "focus:border-deem-red",
+        "focus:ring-2",
+        "focus:ring-red-100",
+        "dark:focus:ring-red-950/30",
+      );
+    } else {
+      classes.push(
+        "border-gray-200",
+        "dark:border-gray-700",
+        "focus:border-black",
+        "focus:ring-2",
+        "focus:ring-gray-200",
+        "dark:focus:border-white",
+        "dark:focus:ring-gray-700",
+      );
+    }
 
-  return classes.join(" ");
-};
+    return classes.join(" ");
+  };
 
   const selectClass = (hasError) => {
     return `${inputClass(hasError)} cursor-pointer`;
@@ -414,6 +407,7 @@ const InvoiceForm = ({
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
                     {customer.customer_name}
+                    {customer.company_name ? ` - ${customer.company_name}` : ""}
                   </option>
                 ))}
               </select>
@@ -681,9 +675,7 @@ const InvoiceForm = ({
                 />
               </div>
 
-              <p className="mt-1 text-xs text-gray-400">
-                Enter Item 2 amount
-              </p>
+              <p className="mt-1 text-xs text-gray-400">Enter Item 2 amount</p>
 
               {errors.item2Amount && (
                 <p className={errorClass}>{errors.item2Amount}</p>

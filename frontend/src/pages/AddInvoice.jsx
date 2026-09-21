@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import { useInvoice } from "../context/InvoiceContext";
+import {ArrowLeft} from "lucide-react";
 
 const AddInvoice = () => {
   const navigate = useNavigate();
@@ -132,23 +133,54 @@ const AddInvoice = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-          {editId
-            ? isViewMode
-              ? "View Invoice"
-              : "Edit Invoice"
-            : "Add Invoice"}
-        </h1>
+<div>
+  <div className="flex items-center gap-3">
+    <button
+      type="button"
+      onClick={() => navigate("/invoices")}
+      title="Back to Invoices"
+      aria-label="Back to Invoices"
+      className="
+        flex
+        h-9
+        w-9
+        shrink-0
+        cursor-pointer
+        items-center
+        justify-center
+        rounded-lg
+        border
+        border-gray-200
+        text-gray-600
+        transition
+        hover:bg-gray-50
+        hover:text-deem-red
+        dark:border-gray-700
+        dark:text-gray-300
+        dark:hover:bg-gray-800
+        dark:hover:text-deem-red
+      "
+    >
+      <ArrowLeft size={18} />
+    </button>
 
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {editId
-            ? isViewMode
-              ? "Invoice details (view only)"
-              : "Update invoice details"
-            : "Create a new invoice"}
-        </p>
-      </div>
+    <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+      {editId
+        ? isViewMode
+          ? "View Invoice"
+          : "Edit Invoice"
+        : "Add Invoice"}
+    </h1>
+  </div>
+
+  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    {editId
+      ? isViewMode
+        ? "Invoice details (view only)"
+        : "Update invoice details"
+      : "Create a new invoice"}
+  </p>
+</div>
 
       {submitError && (
         <div className="rounded-xl border border-deem-red/20 bg-red-50 px-4 py-3 text-sm text-deem-red">
