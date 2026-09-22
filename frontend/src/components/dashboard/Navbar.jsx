@@ -1,4 +1,4 @@
-import { Bell, LayoutDashboard, Menu } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NOTIFICATION_API_URL } from "../../utils/api";
@@ -95,7 +95,7 @@ const Navbar = ({ onToggleMobileMenu }) => {
         <Menu size={21} />
       </button>
 
-      <button
+      {/* <button
         type="button"
         onClick={() => navigate("/dashboard")}
         title="Dashboard"
@@ -115,7 +115,7 @@ const Navbar = ({ onToggleMobileMenu }) => {
         "
       >
         <LayoutDashboard size={21} />
-      </button>
+      </button> */}
     </div>
 
     <div className="flex items-center gap-2">

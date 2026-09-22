@@ -158,7 +158,7 @@ const JoiningCandidateTable = () => {
       <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-[#11161c]">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Joining Candidates
+            New Joining
           </h2>
 
           <div className="relative w-full sm:w-72">

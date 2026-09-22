@@ -44,7 +44,7 @@ export const modules = [
   path: "/notifications",
 },
   {
-    title: "Joining Candidates",
+    title: "New Joining",
     icon: UserCheck,
     path: "/joining-candidates",
   },
@@ -78,13 +78,7 @@ export const modules = [
     title: "Interview",
     icon: MessageSquare,
     path: "/interview",
-  },
-  {
-    title: "New Joining",
-    icon: UserPlus,
-    path: "/new-joining",
-  },
-   
+  },  
   {
     title: "Attendance",
     icon: CalendarCheck,

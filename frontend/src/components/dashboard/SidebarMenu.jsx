@@ -1,7 +1,12 @@
-import { useState } from "react";
+ 
 import { NavLink, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  LayoutDashboard,
+} from "lucide-react";
 
+import { useState } from "react";
 import { modules } from "../../data/moduleData";
 
 const SidebarMenu = ({ collapsed, onNavigate }) => {
@@ -26,16 +31,16 @@ const SidebarMenu = ({ collapsed, onNavigate }) => {
       Array.isArray(module.children) && module.children.length > 0;
 
     const rowClass = `
-  group
-  flex
-  items-center
-  gap-3
-  px-3
-  h-12
-  rounded-xl
-  transition-all
-  duration-200
-`;
+      group
+      flex
+      items-center
+      gap-3
+      px-3
+      h-12
+      rounded-xl
+      transition-all
+      duration-200
+    `;
 
     const showsSubmenu = !collapsed && hasChildren;
 
@@ -59,12 +64,14 @@ const SidebarMenu = ({ collapsed, onNavigate }) => {
           <Icon size={21} strokeWidth={1.8} className="shrink-0" />
 
           {!collapsed && (
-            <span className="text-sm font-medium truncate">{module.title}</span>
+            <span className="text-sm font-medium truncate">
+              {module.title}
+            </span>
           )}
         </NavLink>
       );
     }
- 
+
     const isOpen = isGroupOpen(moduleKey);
 
     return (
@@ -89,12 +96,16 @@ const SidebarMenu = ({ collapsed, onNavigate }) => {
 
           {!collapsed && (
             <span className="shrink-0">
-              {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              {isOpen ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
             </span>
           )}
         </button>
 
-        {showsSubmenu && isOpen && renderChildren(module, moduleKey)}
+        {showsSubmenu && renderChildren(module, moduleKey)}
       </div>
     );
   };
@@ -126,18 +137,21 @@ const SidebarMenu = ({ collapsed, onNavigate }) => {
                   transition
                   ${
                     childActive
-                     ? "bg-white text-deem-blue! shadow-sm font-medium"
+                      ? "bg-white text-deem-blue! shadow-sm font-medium"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
                   }
                 `}
               >
                 <span
                   className={
-                    childActive ? "text-deem-blue/40" : "text-white/40"
+                    childActive
+                      ? "text-deem-blue/40"
+                      : "text-white/40"
                   }
                 >
                   -
                 </span>
+
                 <span className="truncate">{child.title}</span>
               </NavLink>
             );
@@ -169,7 +183,9 @@ const SidebarMenu = ({ collapsed, onNavigate }) => {
                   cursor-pointer
                 "
               >
-                <span className="truncate text-left">{child.title}</span>
+                <span className="truncate text-left">
+                  {child.title}
+                </span>
 
                 {groupOpen ? (
                   <ChevronDown size={14} className="shrink-0" />
@@ -206,12 +222,17 @@ const SidebarMenu = ({ collapsed, onNavigate }) => {
                       >
                         <span
                           className={
-                            leafActive ? "text-deem-blue/40" : "text-white/40"
+                            leafActive
+                              ? "text-deem-blue/40"
+                              : "text-white/40"
                           }
                         >
                           -
                         </span>
-                        <span className="truncate">{leaf.title}</span>
+
+                        <span className="truncate">
+                          {leaf.title}
+                        </span>
                       </NavLink>
                     );
                   })}
@@ -227,12 +248,49 @@ const SidebarMenu = ({ collapsed, onNavigate }) => {
   return (
     <nav className="mt-5 px-3">
       {!collapsed && (
-        <p className="px-3 mb-3 text-[11px] font-semibold uppercase tracking-wider text-white/50">
+        <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-white/50">
           Modules
         </p>
       )}
 
       <div className="space-y-1.5">
+        {/* Dashboard */}
+        <NavLink
+          to="/dashboard"
+          onClick={onNavigate}
+          title={collapsed ? "Dashboard" : ""}
+          className={({ isActive }) => `
+            group
+            flex
+            h-12
+            items-center
+            gap-3
+            rounded-xl
+            px-3
+            transition-all
+            duration-200
+            ${collapsed ? "w-full justify-center" : ""}
+            ${
+              isActive
+                ? "bg-white text-deem-blue! shadow-sm"
+                : "text-white/80 hover:bg-white/10 hover:text-white"
+            }
+          `}
+        >
+          <LayoutDashboard
+            size={21}
+            strokeWidth={1.8}
+            className="shrink-0"
+          />
+
+          {!collapsed && (
+            <span className="truncate text-sm font-medium">
+              Dashboard
+            </span>
+          )}
+        </NavLink>
+
+        {/* Existing Modules */}
         {modules.map((module) => renderModule(module))}
       </div>
     </nav>
