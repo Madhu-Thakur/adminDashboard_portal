@@ -28,7 +28,7 @@ const createJoiningCandidate = async (candidateData) => {
 
   const [result] = await db.execute(
     `
-      INSERT INTO Join_candidate
+      INSERT INTO join_candidate
       (
         ename,
         fname,
@@ -115,7 +115,7 @@ const getAllJoiningCandidates = async () => {
         passbook,
         status,
         last_update
-      FROM Join_candidate
+      FROM join_candidate
       ORDER BY id DESC
     `,
   );
@@ -150,7 +150,7 @@ const getJoiningCandidateById = async (id) => {
         passbook,
         status,
         last_update
-      FROM Join_candidate
+      FROM join_candidate
       WHERE id = ?
     `,
     [id],
@@ -186,7 +186,7 @@ const updateJoiningCandidate = async (id, candidateData) => {
 
   const [result] = await db.execute(
     `
-      UPDATE Join_candidate
+      UPDATE join_candidate
       SET
         ename = ?,
         fname = ?,
@@ -242,7 +242,7 @@ const updateJoiningCandidate = async (id, candidateData) => {
 const deleteJoiningCandidate = async (id) => {
   const [result] = await db.execute(
     `
-      DELETE FROM Join_candidate
+      DELETE FROM join_candidate
       WHERE id = ?
     `,
     [id],

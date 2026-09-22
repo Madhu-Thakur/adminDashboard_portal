@@ -17,10 +17,27 @@ const roleRoutes = require("./routes/roleRoutes");
 const joiningCandidateRoutes = require("./routes/joiningCandidateRoutes");
 const designationRoutes = require("./routes/designationRoutes");
 
+
+const authRoutes = require("./routes/authRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const leaveRoutes = require("./routes/leaveRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const managerRoutes = require("./routes/managerRoutes");
+const meetRoutes = require("./routes/meetRoutes");
+const todayLeaveRoutes = require("./routes/todayLeaveRoutes");
+const birthdayRoutes = require("./routes/birthdayRoutes");
+const joiningRoutes = require("./routes/joiningRoutes");
+const policyRoutes = require("./routes/policyRoutes");
+
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/customers", customerRoutes);
 app.use("/api/addresses", addressRoutes);
@@ -34,6 +51,27 @@ app.use("/api/roles", roleRoutes);
 app.use("/api", joiningCandidateRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+
+app.use("/api", authRoutes);
+app.use("/api", profileRoutes);
+app.use("/api", attendanceRoutes);
+app.use("/api", reportRoutes);
+app.use("/api", leaveRoutes);
+app.use("/api", taskRoutes);
+app.use("/api", meetRoutes);
+app.use("/api", managerRoutes);
+app.use("/api", todayLeaveRoutes);
+app.use("/api", birthdayRoutes);
+app.use("/api", joiningRoutes);
+app.use("/api", policyRoutes);
+
+
+
+
+
+
 
 app.get("/", (req, res) => {
   res.json({
