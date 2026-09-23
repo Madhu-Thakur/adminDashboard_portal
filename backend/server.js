@@ -28,7 +28,7 @@ const managerRoutes = require("./routes/managerRoutes");
 const meetRoutes = require("./routes/meetRoutes");
 const todayLeaveRoutes = require("./routes/todayLeaveRoutes");
 const birthdayRoutes = require("./routes/birthdayRoutes");
-const joiningRoutes = require("./routes/joiningRoutes");
+// const joiningRoutes = require("./routes/joiningRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 
 
@@ -64,13 +64,8 @@ app.use("/api", meetRoutes);
 app.use("/api", managerRoutes);
 app.use("/api", todayLeaveRoutes);
 app.use("/api", birthdayRoutes);
-app.use("/api", joiningRoutes);
+// app.use("/api", joiningRoutes);
 app.use("/api", policyRoutes);
-
-
-
-
-
 
 
 app.get("/", (req, res) => {

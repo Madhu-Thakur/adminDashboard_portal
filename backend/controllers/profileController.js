@@ -12,20 +12,32 @@ const formatDate = (d) => {
 exports.getPersonalDetail = async (req, res) => {
   try {
     const { identifier } = req.params;
+
     const [rows] = await db.query(
       `SELECT
-         e.ename, e.fname, e.mobile, e.pemail, e.dob, e.gender, e.aadhar, e.address, e.file,
-         e.jdate, e.eid, e.level, e.email,
-         e.des as des_id,
-         d.des as des_name
+         e.ename,
+         e.fname,
+         e.mobile,
+         e.pemail,
+         e.dob,
+         e.gender,
+         e.aadhar,
+         e.address,
+         e.file
        FROM employee e
-       LEFT JOIN des d ON d.id = e.des
        WHERE e.pemail=? OR e.email=? OR e.eid=? LIMIT 1`,
       [identifier, identifier, identifier]
     );
-    if (!rows.length) return res.status(404).json({ success: false, message: "Employee not found" });
+
+    if (!rows.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found"
+      });
+    }
 
     const e = rows[0];
+
     res.json({
       success: true,
       personalDetail: {
@@ -37,7 +49,51 @@ exports.getPersonalDetail = async (req, res) => {
         gender: e.gender,
         aadhar: e.aadhar,
         address: e.address,
-        file: e.file,
+        file: e.file
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+// OFFICIAL - 
+exports.getOfficialDetail = async (req, res) => {
+  try {
+    const { identifier } = req.params;
+
+    const [rows] = await db.query(
+      `SELECT
+         e.jdate,
+         e.eid,
+         e.level,
+         e.email,
+         e.des as des_id,
+         d.des as des_name
+       FROM employee e
+       LEFT JOIN des d ON d.id = e.des
+       WHERE e.pemail=? OR e.email=? OR e.eid=? LIMIT 1`,
+      [identifier, identifier, identifier]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found"
+      });
+    }
+
+    const e = rows[0];
+
+    res.json({
+      success: true,
+      officialDetail: {
         jdate: formatDate(e.jdate),
         eid: e.eid,
         level: e.level,
@@ -46,52 +102,14 @@ exports.getPersonalDetail = async (req, res) => {
         des_id: e.des_id
       }
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
 
-// OFFICIAL - 
-exports.getOfficialDetail = async (req, res) => {
-  try {
-    const { identifier } = req.params;
-    const [rows] = await db.query(
-      `SELECT
-         e.pemail, e.jdate, e.eid, e.level, e.des, e.ename, e.fname, e.mobile, e.email, e.dob, e.gender, e.aadhar, e.address, e.file,
-         d.des as des_name 
-       FROM employee e
-       
-      LEFT JOIN des d ON d.id = e.des
-       WHERE e.pemail=? OR e.email=? OR e.eid=? LIMIT 1`,
-      [identifier, identifier, identifier]
-    );
-
-    if (!rows.length) return res.status(404).json({ success: false, message: "Employee not found" });
-
-    const e = rows[0];
-    res.json({
-      success: true,
-      officialDetail: {
-        pemail: e.pemail,
-        jdate: formatDate(e.jdate),
-        eid: e.eid,
-        level: e.level,
-        des: e.des_name, 
-        ename: e.ename,
-        fname: e.fname,
-        mobile: e.mobile,
-        email: e.email,
-        dob: formatDate(e.dob),
-        gender: e.gender,
-        aadhar: e.aadhar,
-        address: e.address,
-        file: e.file
-      }
-    });
   } catch (err) {
     console.error("OFFICIAL ERROR:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
   }
 };
 
