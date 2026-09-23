@@ -38,7 +38,6 @@ exports.getPersonalDetail = async (req, res) => {
         aadhar: e.aadhar,
         address: e.address,
         file: e.file,
-        // 
         jdate: formatDate(e.jdate),
         eid: e.eid,
         level: e.level,
@@ -59,10 +58,11 @@ exports.getOfficialDetail = async (req, res) => {
     const { identifier } = req.params;
     const [rows] = await db.query(
       `SELECT
-         e.pemail, e.jdate, e.eid, e.level, e.des, e.ename, e.fname, e.mobile, e.email, e.dob, e.gender, e.aadhar, e.address,
-         d.des as des_name
+         e.pemail, e.jdate, e.eid, e.level, e.des, e.ename, e.fname, e.mobile, e.email, e.dob, e.gender, e.aadhar, e.address, e.file,
+         d.des as des_name 
        FROM employee e
-       JOIN des d ON d.id = e.des
+       
+      LEFT JOIN des d ON d.id = e.des
        WHERE e.pemail=? OR e.email=? OR e.eid=? LIMIT 1`,
       [identifier, identifier, identifier]
     );
@@ -77,7 +77,7 @@ exports.getOfficialDetail = async (req, res) => {
         jdate: formatDate(e.jdate),
         eid: e.eid,
         level: e.level,
-        des: e.des_name, // 
+        des: e.des_name, 
         ename: e.ename,
         fname: e.fname,
         mobile: e.mobile,
@@ -85,7 +85,8 @@ exports.getOfficialDetail = async (req, res) => {
         dob: formatDate(e.dob),
         gender: e.gender,
         aadhar: e.aadhar,
-        address: e.address
+        address: e.address,
+        file: e.file
       }
     });
   } catch (err) {

@@ -57,7 +57,7 @@ exports.createJoinCandidate = async (req, res) => {
 
     const last_update = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-    const sql = `INSERT INTO Join_candidate
+    const sql = `INSERT INTO join_candidate
     (ename, fname, dob, gender, address, mobile, email, aadhar, mstatus, qual, hstudy, linkedin, photo, resume, degree, pexp, aadharc, sslip, passbook, status, last_update)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
@@ -77,7 +77,7 @@ exports.createJoinCandidate = async (req, res) => {
 
 exports.getAllCandidates = async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM Join_candidate ORDER BY id DESC');
+    const [rows] = await db.execute('SELECT * FROM join_candidate ORDER BY id DESC');
     res.json({ success: true, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -86,7 +86,7 @@ exports.getAllCandidates = async (req, res) => {
 
 exports.getCandidateById = async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM Join_candidate WHERE id =?', [req.params.id]);
+    const [rows] = await db.execute('SELECT * FROM join_candidate WHERE id =?', [req.params.id]);
     if (!rows.length) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, data: rows[0] });
   } catch (err) {
@@ -98,7 +98,7 @@ exports.updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const last_update = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    await db.execute('UPDATE Join_candidate SET status=?, last_update=? WHERE id=?', [status, last_update, req.params.id]);
+    await db.execute('UPDATE join_candidate SET status=?, last_update=? WHERE id=?', [status, last_update, req.params.id]);
     res.json({ success: true, message: 'Status updated' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -107,7 +107,7 @@ exports.updateStatus = async (req, res) => {
 
 exports.deleteCandidate = async (req, res) => {
   try {
-    await db.execute('DELETE FROM Join_candidate WHERE id=?', [req.params.id]);
+    await db.execute('DELETE FROM join_candidate WHERE id=?', [req.params.id]);
     res.json({ success: true, message: 'Deleted' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

@@ -3,7 +3,7 @@
   "info": {
     "title": "DEEM Portal API",
     "version": "1.0.0",
-    "description": "DEEM Portal Customer, Address and Service Management API"
+    "description": "DEEM Portal API - Customers, Addresses, Services, Invoices, Vouchers, Joining, HR modules (Auth, Attendance, Report, Leave, Task, Profile, Manager, Meet, Today Leave, Birthday, Joining, Policy), Designations, Announcements and Notifications"
   },
   "servers": [
     {
@@ -818,6 +818,835 @@
             "description": "Server error"
           }
         }
+      },
+      "get": {
+        "summary": "Get all joining applicants (new joining module)",
+        "tags": [
+          "Joining"
+        ],
+        "description": "Same path as the legacy POST /api/join-candidate but a different method, so both coexist. Queries the Join_candidate table ordered by id DESC.",
+        "responses": {
+          "200": {
+            "description": "Returns { success, data }"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "summary": "Employee login",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful, returns JWT token and user object"
+          },
+          "400": {
+            "description": "Email and Password required"
+          },
+          "401": {
+            "description": "Invalid credentials or inactive account"
+          },
+          "500": {
+            "description": "Database error"
+          }
+        }
+      }
+    },
+    "/api/forgot-password": {
+      "post": {
+        "summary": "Request password reset code",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reset code sent (response also contains debug_token)"
+          },
+          "400": {
+            "description": "Username required"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/reset-password": {
+      "post": {
+        "summary": "Reset password using code",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated successfully"
+          },
+          "400": {
+            "description": "Token and new password required, or invalid code"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/attendance": {
+      "post": {
+        "summary": "Attendance punch in / punch out (file upload optional)",
+        "tags": [
+          "Attendance"
+        ],
+        "description": "multipart/form-data. First punch of the day for an eid+date creates an IN record (intime required); a second call with outtime marks OUT. Optional single file field named file (jpg/jpeg/png, max 5 MB) uploads to Cloudinary folder deem_selfies.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AttendancePunchInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "In Time Marked or Out Time Marked"
+          },
+          "400": {
+            "description": "eid and date required / In time missing / Out time missing / Already OUT punched today / multer upload error"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/attendance/{eid}": {
+      "get": {
+        "summary": "Get attendance records for an employee",
+        "tags": [
+          "Attendance"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AttendanceEid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attendance records returned as a JSON array (raw rows, not wrapped)"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/attendance/{eid}/{date}": {
+      "delete": {
+        "summary": "Delete an attendance record",
+        "tags": [
+          "Attendance"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AttendanceEid"
+          },
+          {
+            "$ref": "#/components/parameters/AttendanceDate"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attendance deleted successfully"
+          },
+          "404": {
+            "description": "Attendance not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/report": {
+      "post": {
+        "summary": "Submit day-end report",
+        "tags": [
+          "Report"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report submitted, returns inserted id"
+          },
+          "400": {
+            "description": "email, date, message required"
+          },
+          "500": {
+            "description": "DB Error"
+          }
+        }
+      }
+    },
+    "/api/report/{email}": {
+      "get": {
+        "summary": "Get reports by email",
+        "tags": [
+          "Report"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReportEmail"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reports returned as { success, data }"
+          },
+          "400": {
+            "description": "email required"
+          },
+          "500": {
+            "description": "DB Error"
+          }
+        }
+      }
+    },
+    "/api/report/all/{email}": {
+      "delete": {
+        "summary": "Delete all reports for an email",
+        "tags": [
+          "Report"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReportEmail"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns count of deleted reports, e.g. N reports deleted"
+          },
+          "400": {
+            "description": "email required"
+          },
+          "500": {
+            "description": "DB Error"
+          }
+        }
+      }
+    },
+    "/api/leave/apply": {
+      "post": {
+        "summary": "Apply for leave",
+        "tags": [
+          "Leave"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaveApplyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Leave Applied Successfully"
+          },
+          "400": {
+            "description": "All fields required / An entry for this date already exists"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/leave/leave-balance/{identifier}": {
+      "get": {
+        "summary": "Get leave balance by eid or email",
+        "tags": [
+          "Leave"
+        ],
+        "description": "Code registers two Express routes with the same pattern: GET /leave/leave-balance/:eid and GET /leave/leave-balance/:email. The first match wins; the controller also accepts an email-looking :eid value and an optional ?email query. Pass the employee id or the email address as {identifier}.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/LeaveBalanceIdentifier"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "description": "Fallback email lookup used by the controller",
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, eid, ename, lbal, leaveBalance }"
+          },
+          "404": {
+            "description": "Employee not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/leave/{eid}": {
+      "get": {
+        "summary": "Get leave applications for an employee",
+        "tags": [
+          "Leave"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/LeaveEid"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Optional status filter: 0 PENDING, 1 HR PENDING, 2 APPROVED, 3 REJECTED, 4 WITHDRAWEL",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, data } with status_name per row"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/task": {
+      "get": {
+        "summary": "Get tasks by email",
+        "tags": [
+          "Task"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "description": "Employee email",
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, data } with status_name per task (0 Todo, 1 Doing, 2 Done)"
+          },
+          "400": {
+            "description": "Email required"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update task status only",
+        "tags": [
+          "Task"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskStatusUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task Status Updated"
+          },
+          "400": {
+            "description": "Invalid status (must be 0-2)"
+          },
+          "404": {
+            "description": "Task not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/profile/personal/{identifier}": {
+      "get": {
+        "summary": "Get personal detail by pemail, email or eid",
+        "tags": [
+          "Profile"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProfileIdentifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, personalDetail }"
+          },
+          "404": {
+            "description": "Employee not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/profile/official/{identifier}": {
+      "get": {
+        "summary": "Get official detail by pemail, email or eid",
+        "tags": [
+          "Profile"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProfileIdentifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, officialDetail }"
+          },
+          "404": {
+            "description": "Employee not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/change-password": {
+      "post": {
+        "summary": "Change user password",
+        "tags": [
+          "Profile"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed successfully"
+          },
+          "400": {
+            "description": "New and confirm password required / Passwords do not match / id or username required"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/manager/rm": {
+      "get": {
+        "summary": "Get reporting manager (email as query)",
+        "tags": [
+          "Manager"
+        ],
+        "description": "Same controller as /manager/rm/{email}; email is read from req.params.email OR req.query.email.",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "description": "Employee email",
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, rmEmail, data } or { success, data: null, message: 'No RM assigned' }"
+          },
+          "400": {
+            "description": "Email required"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/manager/rm/{email}": {
+      "get": {
+        "summary": "Get reporting manager by email path param",
+        "tags": [
+          "Manager"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ManagerEmail"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, rmEmail, data } or { success, data: null, message: 'No RM assigned' }"
+          },
+          "400": {
+            "description": "Email required"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/meet/meeting": {
+      "get": {
+        "summary": "Get the configured meeting link",
+        "tags": [
+          "Meet"
+        ],
+        "description": "NOTE: meetRoutes.js registers this as //meet/meeting (double slash). Express normalizes it, so call it as /api/meet/meeting.",
+        "responses": {
+          "200": {
+            "description": "Returns { success, meeting } or { success: false, message } when no link is configured"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/meet/{id}/meeting": {
+      "get": {
+        "summary": "Get meeting link for an employee",
+        "tags": [
+          "Meet"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/MeetingId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, eid, meeting }"
+          },
+          "404": {
+            "description": "No employee row found for this id/eid"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/today-leave": {
+      "get": {
+        "summary": "Get today's leave list",
+        "tags": [
+          "Today Leave"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, today, count, data } with derived Half Day / Full Day leave type"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/today-birthday": {
+      "get": {
+        "summary": "Get today's birthdays",
+        "tags": [
+          "Birthday"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, today, count, data } for employees with wstatus Working"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/join-candidate/{id}": {
+      "get": {
+        "summary": "Get joining applicant by id",
+        "tags": [
+          "Joining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/JoinCandidateId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, data }"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete joining applicant",
+        "tags": [
+          "Joining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/JoinCandidateId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, message: 'Deleted' }"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/join-candidate/{id}/status": {
+      "put": {
+        "summary": "Update joining applicant status",
+        "tags": [
+          "Joining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/JoinCandidateId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoiningStatusUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns { success, message: 'Status updated' }"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/policy": {
+      "get": {
+        "summary": "Get all policies",
+        "tags": [
+          "Policy"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, data }"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create policy",
+        "tags": [
+          "Policy"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Policy added, returns inserted id"
+          },
+          "400": {
+            "description": "Policy field is required"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/policy/{id}": {
+      "get": {
+        "summary": "Get policy by id",
+        "tags": [
+          "Policy"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolicyId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns { success, data }"
+          },
+          "404": {
+            "description": "Policy not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update policy",
+        "tags": [
+          "Policy"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolicyId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Policy updated"
+          },
+          "404": {
+            "description": "Policy not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete policy",
+        "tags": [
+          "Policy"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolicyId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Policy deleted"
+          },
+          "404": {
+            "description": "Policy not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     }
   },
@@ -891,6 +1720,106 @@
         "schema": {
           "type": "integer",
           "example": 1
+        }
+      },
+      "AttendanceEid": {
+        "name": "eid",
+        "in": "path",
+        "required": true,
+        "description": "Employee id",
+        "schema": {
+          "type": "string",
+          "example": "E001"
+        }
+      },
+      "AttendanceDate": {
+        "name": "date",
+        "in": "path",
+        "required": true,
+        "description": "Attendance date as stored (YYYY-MM-DD)",
+        "schema": {
+          "type": "string",
+          "example": "2026-09-22"
+        }
+      },
+      "ReportEmail": {
+        "name": "email",
+        "in": "path",
+        "required": true,
+        "description": "Employee email",
+        "schema": {
+          "type": "string",
+          "example": "divya@gmail.com"
+        }
+      },
+      "LeaveEid": {
+        "name": "eid",
+        "in": "path",
+        "required": true,
+        "description": "Employee id",
+        "schema": {
+          "type": "string",
+          "example": "E001"
+        }
+      },
+      "LeaveBalanceIdentifier": {
+        "name": "identifier",
+        "in": "path",
+        "required": true,
+        "description": "Employee id OR email address",
+        "schema": {
+          "type": "string",
+          "example": "E001"
+        }
+      },
+      "ProfileIdentifier": {
+        "name": "identifier",
+        "in": "path",
+        "required": true,
+        "description": "Personal email, official email, or employee id",
+        "schema": {
+          "type": "string",
+          "example": "divya@gmail.com"
+        }
+      },
+      "ManagerEmail": {
+        "name": "email",
+        "in": "path",
+        "required": true,
+        "description": "Employee email",
+        "schema": {
+          "type": "string",
+          "example": "divya@gmail.com"
+        }
+      },
+      "MeetingId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Employee id or user id",
+        "schema": {
+          "type": "string",
+          "example": "E001"
+        }
+      },
+      "JoinCandidateId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Joining applicant id",
+        "schema": {
+          "type": "string",
+          "example": "1"
+        }
+      },
+      "PolicyId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Policy id",
+        "schema": {
+          "type": "string",
+          "example": "1"
         }
       }
     },
@@ -1406,6 +2335,260 @@
             ],
             "description": "Status is set to 0 by the server; this input is not used by the POST API",
             "example": 1
+          }
+        }
+      },
+      "LoginInput": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "divya@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "password123"
+          }
+        }
+      },
+      "ForgotPasswordInput": {
+        "type": "object",
+        "required": [
+          "username"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "format": "email",
+            "description": "Login username (email)",
+            "example": "divya@gmail.com"
+          }
+        }
+      },
+      "ResetPasswordInput": {
+        "type": "object",
+        "required": [
+          "token",
+          "newPassword"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "6-digit code emailed by forgot-password",
+            "example": "123456"
+          },
+          "newPassword": {
+            "type": "string",
+            "format": "password",
+            "example": "newpassword123"
+          }
+        }
+      },
+      "ReportInput": {
+        "type": "object",
+        "required": [
+          "email",
+          "date",
+          "message"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "divya@gmail.com"
+          },
+          "date": {
+            "type": "string",
+            "description": "DD-MM-YYYY (server converts to YYYY-MM-DD)",
+            "example": "22-09-2026"
+          },
+          "message": {
+            "type": "string",
+            "example": "Completed dashboard API integration today."
+          }
+        }
+      },
+      "LeaveApplyInput": {
+        "type": "object",
+        "required": [
+          "eid",
+          "ename",
+          "reason",
+          "rm",
+          "intime",
+          "outtime"
+        ],
+        "properties": {
+          "eid": {
+            "type": "string",
+            "example": "E001"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "divya@gmail.com"
+          },
+          "ename": {
+            "type": "string",
+            "example": "Divya Sharma"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Sick leave"
+          },
+          "rm": {
+            "type": "string",
+            "format": "email",
+            "description": "Reporting manager email",
+            "example": "manager@company.com"
+          },
+          "date": {
+            "type": "string",
+            "description": "Optional, defaults to today. YYYY-MM-DD",
+            "example": "2026-09-22"
+          },
+          "intime": {
+            "type": "string",
+            "example": "09:00"
+          },
+          "outtime": {
+            "type": "string",
+            "example": "13:00"
+          }
+        }
+      },
+      "TaskStatusUpdateInput": {
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "description": "0 Todo, 1 Doing, 2 Done",
+            "example": 1
+          }
+        }
+      },
+      "ChangePasswordInput": {
+        "type": "object",
+        "required": [
+          "newPassword",
+          "confirmPassword"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "User id (provide id OR username)",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "format": "email",
+            "example": "divya@gmail.com"
+          },
+          "newPassword": {
+            "type": "string",
+            "format": "password"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "PolicyInput": {
+        "type": "object",
+        "required": [
+          "policy"
+        ],
+        "properties": {
+          "policy": {
+            "type": "string",
+            "example": "Employees must mark attendance daily before 10:00 AM."
+          }
+        }
+      },
+      "JoiningStatusUpdateInput": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "New status value for the applicant",
+            "example": 1
+          }
+        }
+      },
+      "AttendancePunchInput": {
+        "type": "object",
+        "required": [
+          "eid",
+          "date"
+        ],
+        "properties": {
+          "eid": {
+            "type": "string",
+            "example": "E001"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "divya@gmail.com"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-09-22"
+          },
+          "day": {
+            "type": "string",
+            "example": "Monday"
+          },
+          "intime": {
+            "type": "string",
+            "description": "Required for IN punch",
+            "example": "09:30"
+          },
+          "outtime": {
+            "type": "string",
+            "description": "Required for OUT punch",
+            "example": "18:30"
+          },
+          "latitude": {
+            "type": "string",
+            "example": "23.0225"
+          },
+          "longitude": {
+            "type": "string",
+            "example": "72.5714"
+          },
+          "ename": {
+            "type": "string",
+            "example": "Divya Sharma"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "Optional selfie (jpg/jpeg/png, max 5 MB) -> Cloudinary deem_selfies"
           }
         }
       }

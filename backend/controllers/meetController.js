@@ -24,8 +24,11 @@ exports.getAllMeeting = async (req, res) => {
 exports.getMeeting = async (req, res) => {
   try {
     const { id } = req.params;
-    const sql = `SELECT eid, meeting FROM employee WHERE eid =? OR id =? LIMIT 1`;
-    const [rows] = await db.query(sql, [id, id]);
+    // const sql = `SELECT eid, meeting FROM employee WHERE eid =? OR id =? LIMIT 1`;
+    // const [rows] = await db.query(sql, [id, id]);
+
+    const sql = `SELECT eid, meeting FROM employee WHERE eid =? LIMIT 1`;
+const [rows] = await db.query(sql, [id]);
 
     if (rows.length === 0) {
       return res.status(404).json({
