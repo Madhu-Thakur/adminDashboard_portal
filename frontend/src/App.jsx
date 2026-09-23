@@ -18,6 +18,7 @@ import AddAnnouncement from "./pages/AddAnnouncement";
 import Notifications from "./pages/Notifications";
 import AddNotification from "./pages/AddNotification";
 import JoiningCandidates from "./pages/JoiningCandidates";
+import Employees from "./pages/Employees";
 
 const App = () => {
   return (
@@ -59,7 +60,7 @@ const App = () => {
             element={<JoiningCandidates />}
           />
 
-          <Route path="/employees" element={<div>Employees</div>} />
+          <Route path="/employees" element={<Employees />} />
           <Route path="/students" element={<div>Students</div>} />
           <Route path="/users" element={<div>Users</div>} />
           <Route path="/teams" element={<div>Teams</div>} />

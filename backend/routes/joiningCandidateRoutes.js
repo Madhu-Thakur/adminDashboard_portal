@@ -7,6 +7,7 @@ const {
   getJoiningCandidate,
   editJoiningCandidate,
   removeJoiningCandidate,
+  convertCandidateToEmployee,
 } = require("../controllers/joiningCandidateControllers");
 
 const router = express.Router();
@@ -38,8 +39,12 @@ router.post(
 // Our GET APIs
 router.get("/joining-candidates", getJoiningCandidates);
 router.get("/joining-candidates/:id", getJoiningCandidate);
-
-// Existing update/delete APIs
+// Save Joining Candidate as Employee
+router.post(
+  "/joining-candidates/:id/save-as-employee",
+  convertCandidateToEmployee
+); 
+ 
 router.put(
   "/joining-candidates/:id",
   joiningCandidateUpload,

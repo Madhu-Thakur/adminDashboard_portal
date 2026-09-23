@@ -4,6 +4,7 @@ const {
   getJoiningCandidateById,
   updateJoiningCandidate,
   deleteJoiningCandidate,
+  saveCandidateAsEmployee,
 } = require("../models/joiningCandidateModel");
 
 const cloudinary = require("../config/cloudinary");
@@ -352,10 +353,70 @@ const removeJoiningCandidate = async (req, res) => {
   }
 };
 
+// POST - Save Joining Candidate as Employee
+const convertCandidateToEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { designationId } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Joining candidate ID is required",
+      });
+    }
+
+    if (!designationId) {
+      return res.status(400).json({
+        success: false,
+        message: "Designation is required",
+      });
+    }
+
+    const employeeId = await saveCandidateAsEmployee(
+      id,
+      designationId
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Candidate saved as employee successfully",
+      employeeId,
+    });
+
+  } catch (error) {
+    console.error("Save Candidate As Employee Error:", error);
+
+    if (error.message === "Joining candidate not found") {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    if (
+      error.message === "Designation not found" ||
+      error.message === "Candidate is already an employee"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to save candidate as employee",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addJoiningCandidate,
   getJoiningCandidates,
   getJoiningCandidate,
   editJoiningCandidate,
   removeJoiningCandidate,
+ convertCandidateToEmployee,
 };

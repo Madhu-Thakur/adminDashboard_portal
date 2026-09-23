@@ -586,6 +586,7 @@
         }
       }
     },
+
     "/api/joining-candidates/{id}": {
       "get": {
         "summary": "Get joining candidate by ID",
@@ -667,6 +668,55 @@
         }
       }
     },
+
+"/api/joining-candidates/{id}/save-as-employee": {
+  "post": {
+    "summary": "Save joining candidate as employee",
+    "tags": [
+      "Joining Candidates"
+    ],
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/JoiningCandidateId"
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": [
+              "designationId"
+            ],
+            "properties": {
+              "designationId": {
+                "type": "integer",
+                "example": 2,
+                "description": "Designation ID from the designation table"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "Candidate saved as employee successfully"
+      },
+      "400": {
+        "description": "Designation is required, designation not found, or candidate is already an employee"
+      },
+      "404": {
+        "description": "Joining candidate not found"
+      },
+      "500": {
+        "description": "Failed to save candidate as employee"
+      }
+    }
+  }
+},
+
     "/api/designations": {
       "post": {
         "summary": "Create a new designation",

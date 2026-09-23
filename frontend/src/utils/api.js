@@ -13,6 +13,7 @@ export const NOTIFICATION_API_URL = `${API_BASE_URL}/api/notifications`;
 export const ANNOUNCEMENT_API_URL = `${API_BASE_URL}/api/announcements`;
 export const JOINING_CANDIDATE_API_URL = `${API_BASE_URL}/api/joining-candidates`;
 export const DESIGNATION_API_URL = `${API_BASE_URL}/api/designations`;
+export const EMPLOYEE_API_URL = `${API_BASE_URL}/api/employees`;
 
 export async function parseJson(response) {
   const contentType = (

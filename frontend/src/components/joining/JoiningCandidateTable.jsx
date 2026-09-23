@@ -1,9 +1,16 @@
-﻿import {
+﻿ import {
   Search,
   ChevronLeft,
   ChevronRight,
   X,
   UserRoundPlus,
+  Pencil,
+  FileText,
+  ClipboardCheck,
+  Phone,
+  Mail,
+  CalendarDays,
+  UserRound,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -189,6 +196,10 @@ const JoiningCandidateTable = () => {
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Photo
+                  </th>
+
+                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     ID
                   </th>
 
@@ -244,6 +255,20 @@ const JoiningCandidateTable = () => {
                     key={candidate.id}
                     className="border-b border-gray-100 last:border-0 transition hover:bg-gray-50/50 dark:border-gray-800 dark:hover:bg-[#0b0f14]"
                   >
+                    <td className="px-5 py-4">
+                      {candidate.photo ? (
+                        <img
+                          src={candidate.photo}
+                          alt={candidate.ename || "Candidate"}
+                          className="h-10 w-10 rounded-full border border-gray-200 object-cover dark:border-gray-700"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800">
+                          <UserRound size={18} />
+                        </div>
+                      )}
+                    </td>
+
                     <td className="px-5 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
                       {candidate.id}
                     </td>
@@ -301,16 +326,72 @@ const JoiningCandidateTable = () => {
                         : "-"}
                     </td>
 
-                    <td className="px-5 py-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => handleSaveAsEmployee(candidate)}
-                        title="Save as Employee"
-                        aria-label="Save as Employee"
-                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-deem-red text-white transition hover:bg-[#d94335]"
-                      >
-                        <UserRoundPlus size={17} strokeWidth={1.8} />
-                      </button>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          title="Edit"
+                          aria-label="Edit"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
+                        >
+                          <Pencil size={16} strokeWidth={1.8} />
+                        </button>
+
+                        <button
+                          type="button"
+                          title="Documents"
+                          aria-label="Documents"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
+                        >
+                          <FileText size={16} strokeWidth={1.8} />
+                        </button>
+
+                        <button
+                          type="button"
+                          title="Attendance"
+                          aria-label="Attendance"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
+                        >
+                          <ClipboardCheck size={16} strokeWidth={1.8} />
+                        </button>
+
+                        <button
+                          type="button"
+                          title="Phone"
+                          aria-label="Phone"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
+                        >
+                          <Phone size={16} strokeWidth={1.8} />
+                        </button>
+
+                        <button
+                          type="button"
+                          title="Email"
+                          aria-label="Email"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
+                        >
+                          <Mail size={16} strokeWidth={1.8} />
+                        </button>
+
+                        <button
+                          type="button"
+                          title="Leave"
+                          aria-label="Leave"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
+                        >
+                          <CalendarDays size={16} strokeWidth={1.8} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSaveAsEmployee(candidate)}
+                          title="Save as Employee"
+                          aria-label="Save as Employee"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-deem-red text-white transition hover:bg-[#d94335]"
+                        >
+                          <UserRoundPlus size={17} strokeWidth={1.8} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -16,7 +16,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const joiningCandidateRoutes = require("./routes/joiningCandidateRoutes");
 const designationRoutes = require("./routes/designationRoutes");
-
+const employeeRoutes = require("./routes/employeeRoutes");
 
 const authRoutes = require("./routes/authRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
@@ -38,7 +38,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
-
+app.use("/api", employeeRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/services", serviceRoutes);

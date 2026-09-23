@@ -14,7 +14,7 @@ const createService = async (serviceData) => {
 
   const [result] = await db.execute(
     `
-      INSERT INTO service_table
+      INSERT INTO service_detail
       (
         customer_id,
         service_type,
@@ -56,7 +56,7 @@ const getAllServices = async () => {
         renewal_amount,
         service_status,
         created_at
-      FROM service_table
+      FROM service_detail
       ORDER BY id DESC
     `,
   );
@@ -78,7 +78,7 @@ const getServicesByCustomerId = async (customerId) => {
         renewal_amount,
         service_status,
         created_at
-      FROM service_table
+      FROM service_detail
       WHERE customer_id = ?
       ORDER BY id DESC
     `,
@@ -102,7 +102,7 @@ const getServiceById = async (id) => {
         renewal_amount,
         service_status,
         created_at
-      FROM service_table
+      FROM service_detail
       WHERE id = ?
     `,
     [id],
@@ -125,7 +125,7 @@ const updateService = async (id, serviceData) => {
 
   const [result] = await db.execute(
     `
-      UPDATE service_table
+      UPDATE service_detail
       SET
         customer_id = ?,
         service_type = ?,
@@ -156,7 +156,7 @@ const updateService = async (id, serviceData) => {
 const deleteService = async (id) => {
   const [result] = await db.execute(
     `
-      DELETE FROM service_table
+      DELETE FROM service_detail
       WHERE id = ?
     `,
     [id],

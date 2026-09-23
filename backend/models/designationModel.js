@@ -7,7 +7,7 @@ const getAllDesignations = async () => {
        id,
        des,
        last_update
-     FROM des_table
+     FROM des
      ORDER BY id ASC`,
   );
 
@@ -21,7 +21,7 @@ const getDesignationById = async (id) => {
        id,
        des,
        last_update
-     FROM des_table
+     FROM des
      WHERE id = ?`,
     [id],
   );
@@ -33,7 +33,7 @@ const createDesignation = async (designationData) => {
   const { des } = designationData;
 
   const [result] = await db.query(
-    `INSERT INTO des_table
+    `INSERT INTO des
       (des)
      VALUES (?)`,
     [des],
@@ -46,7 +46,7 @@ const updateDesignation = async (id, designationData) => {
   const { des } = designationData;
 
   const [result] = await db.query(
-    `UPDATE des_table
+    `UPDATE des
      SET
        des = ?
      WHERE id = ?`,
@@ -59,7 +59,7 @@ const updateDesignation = async (id, designationData) => {
 // Delete Designation
 const deleteDesignation = async (id) => {
   const [result] = await db.query(
-    `DELETE FROM des_table
+    `DELETE FROM des
      WHERE id = ?`,
     [id],
   );
