@@ -31,6 +31,8 @@ const birthdayRoutes = require("./routes/birthdayRoutes");
 // const joiningRoutes = require("./routes/joiningRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 
+const indentRoutes = require("./routes/indentRoutes");
+
 
 const app = express();
 
@@ -66,7 +68,7 @@ app.use("/api", todayLeaveRoutes);
 app.use("/api", birthdayRoutes);
 // app.use("/api", joiningRoutes);
 app.use("/api", policyRoutes);
-
+app.use("/api", indentRoutes);
 
 app.get("/", (req, res) => {
   res.json({
