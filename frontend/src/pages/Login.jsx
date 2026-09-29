@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/images/logo-1.png";
+import { AUTH_LOGIN_URL } from "../utils/api";
 import {
   Mail,
   Lock,
@@ -28,29 +29,59 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch(
+      AUTH_LOGIN_URL,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          username: formData.email,
+          password: formData.password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Login failed");
+      return;
+    }
+
+    console.log("Login successful:", data);
+
     navigate("/dashboard");
-  };
+  } catch (error) {
+    console.error("Login Error:", error);
+    alert("Unable to connect to server");
+  }
+};
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-[#e2e6ea]">
  
-      <div className="pointer-events-none absolute -left-28 -top-24 h-80 w-80 rounded-full border-[28px] border-[#EB5141]/10 sm:h-96 sm:w-96" />
+      <div className="pointer-events-none absolute -left-28 -top-24 h-80 w-80 rounded-full border-28 border-deem-red/10 sm:h-96 sm:w-96" />
  
-      <div className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full border-[28px] border-[#144667]/10 sm:h-96 sm:w-96" />
+      <div className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full border-28 border-deem-blue/10 sm:h-96 sm:w-96" />
  
-      <div className="pointer-events-none absolute -bottom-32 -left-28 h-80 w-80 rounded-full border-[28px] border-[#144667]/10 sm:h-96 sm:w-96" />
+      <div className="pointer-events-none absolute -bottom-32 -left-28 h-80 w-80 rounded-full border-28 border-deem-blue/10 sm:h-96 sm:w-96" />
  
-      <div className="pointer-events-none absolute -bottom-40 -right-28 h-96 w-96 rounded-full bg-[#144667]/[0.045] sm:h-[430px] sm:w-[430px]" />
+      <div className="pointer-events-none absolute -bottom-40 -right-28 h-96 w-96 rounded-full bg-deem-blue/4.5 sm:h-107.5" />
  
-      <div className="pointer-events-none absolute right-[12%] top-[46%] h-24 w-24 rounded-full bg-[#EB5141]/[0.07] sm:h-28 sm:w-28" />
+      <div className="pointer-events-none absolute right-[12%] top-[46%] h-24 w-24 rounded-full bg-deem-red/[0.07] sm:h-28 sm:w-28" />
  
-      <div className="pointer-events-none absolute left-[14%] top-[22%] h-16 w-16 rounded-full bg-[#144667]/[0.04]" />
+      <div className="pointer-events-none absolute left-[14%] top-[22%] h-16 w-16 rounded-full bg-deem-blue/4" />
 
       <main className="relative z-10 flex min-h-dvh items-center justify-center px-4 py-6 sm:px-6">
  
-        <div className="w-full max-w-[500px]">
+        <div className="w-full max-w-125">
 
           <div className="rounded-[22px] border border-slate-100 bg-white px-7 py-7 shadow-[0_10px_30px_-5px_rgba(20,70,103,0.12)] sm:px-9 sm:py-8">
  

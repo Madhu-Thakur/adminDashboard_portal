@@ -1,6 +1,36 @@
 import { LogOut, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AUTH_LOGOUT_URL } from "../../utils/api";
 
 const SidebarActions = ({ collapsed }) => {
+
+const navigate = useNavigate();
+
+const handleLogout = async () => {
+  try {
+    const response = await fetch(
+      AUTH_LOGOUT_URL ,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Logout failed:", data.message);
+      return;
+    }
+
+    console.log("Logout successful");
+
+    navigate("/login");
+  } catch (error) {
+    console.error("Logout Error:", error);
+  }
+};
+
   return (
     <div className="mt-6 pt-5 border-t border-white/10 space-y-1.5">
       <button
@@ -36,6 +66,7 @@ const SidebarActions = ({ collapsed }) => {
 
       <button
         type="button"
+        onClick={handleLogout}
         title={collapsed ? "Logout" : ""}
         className={`
           group

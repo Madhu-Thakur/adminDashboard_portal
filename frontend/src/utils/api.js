@@ -2,6 +2,9 @@
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL;
 
+  export const AUTH_LOGIN_URL = `${API_BASE_URL}/api/auth/login`;
+export const AUTH_LOGOUT_URL = `${API_BASE_URL}/api/auth/logout`;
+
 export const CUSTOMER_API_URL = `${API_BASE_URL}/api/customers`;
 export const ADDRESS_API_URL = `${API_BASE_URL}/api/addresses`;
 export const SERVICE_API_URL = `${API_BASE_URL}/api/services`;
