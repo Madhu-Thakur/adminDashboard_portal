@@ -5,6 +5,15 @@ export const API_BASE_URL =
   export const AUTH_LOGIN_URL = `${API_BASE_URL}/api/auth/login`;
 export const AUTH_LOGOUT_URL = `${API_BASE_URL}/api/auth/logout`;
 
+export const AUTH_FORGOT_PASSWORD_URL =
+  `${API_BASE_URL}/api/auth/forgot-password`;
+
+export const AUTH_VERIFY_OTP_URL =
+  `${API_BASE_URL}/api/auth/verify-otp`;
+
+export const AUTH_RESET_PASSWORD_URL =
+  `${API_BASE_URL}/api/auth/reset-password`;
+
 export const CUSTOMER_API_URL = `${API_BASE_URL}/api/customers`;
 export const ADDRESS_API_URL = `${API_BASE_URL}/api/addresses`;
 export const SERVICE_API_URL = `${API_BASE_URL}/api/services`;
