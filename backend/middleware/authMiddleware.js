@@ -3,7 +3,17 @@ const jwt = require("jsonwebtoken");
 const authMiddleware = (req, res, next) => {
   try {
     // Get access token from HTTP-only cookie
-    const accessToken = req.cookies?.access_token;
+    // const accessToken = req.cookies?.access_token;
+
+    let accessToken = req.cookies?.access_token;
+
+    if (!accessToken) {
+      const authHeader = req.headers.authorization;
+
+      if (authHeader?.startsWith("Bearer ")) {
+        accessToken = authHeader.split(" ")[1];
+      }
+    }
 
     if (!accessToken) {
       return res.status(401).json({
@@ -12,13 +22,8 @@ const authMiddleware = (req, res, next) => {
       });
     }
 
-    // Verify access token
-    const decoded = jwt.verify(
-      accessToken,
-      process.env.JWT_SECRET
-    );
-
-    // Store decoded user information in request
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+ 
     req.user = decoded;
 
     next();

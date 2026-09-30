@@ -128,6 +128,7 @@ exports.login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Login successful",
+      token: accessToken, // ← ADD THIS 
       user: {
         id: user.id,
         name: user.emp_name,
@@ -146,12 +147,7 @@ exports.login = async (req, res) => {
     });
   }
 };
-
-
-// ======================================================
-// REFRESH ACCESS TOKEN
-// ======================================================
-
+ 
 exports.refreshAccessToken = async (req, res) => {
   try {
     const refreshToken = req.cookies?.refresh_token;
@@ -215,11 +211,7 @@ exports.refreshAccessToken = async (req, res) => {
   }
 };
 
-
-// ======================================================
-// GET CURRENT USER
-// ======================================================
-
+ 
 exports.getMe = async (req, res) => {
   try {
     const user = await userModel.findUserById(req.user.userId);
