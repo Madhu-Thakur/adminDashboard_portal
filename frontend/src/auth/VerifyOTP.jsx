@@ -56,7 +56,8 @@ toast.error("Please enter the OTP");
 
       console.log("OTP verified successfully:", data);
 
-      navigate("/reset-password");
+      // navigate("/reset-password");
+      navigate("/reset-password", { replace: true });
     } catch (error) {
       console.error("Verify OTP Error:", error);
      toast.error("Unable to connect to server");

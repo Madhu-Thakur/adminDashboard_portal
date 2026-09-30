@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     e.preventDefault();
 
     if (!email.trim()) {
-    toast.error("Please enter your email address");
+      toast.error("Please enter your email address");
       return;
     }
 
@@ -36,20 +36,22 @@ const ForgotPassword = () => {
       const data = await response.json();
 
       if (!response.ok) {
-       toast.error(data.message || "Unable to send OTP");
+        toast.error(data.message || "Unable to send OTP");
         return;
       }
 
       console.log("OTP sent successfully:", data);
- 
+
       sessionStorage.setItem("resetEmail", email.trim());
 
-     toast.success("OTP sent successfully to your email");
+      toast.success("OTP sent successfully to your email");
 
-      navigate("/verify-otp");
+navigate("/verify-otp", { replace: true });
+
+      // navigate("/verify-otp");
     } catch (error) {
       console.error("Forgot Password Error:", error);
-   toast.error("Unable to connect to server");
+      toast.error("Unable to connect to server");
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,6 @@ const ForgotPassword = () => {
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-[#e2e6ea]">
- 
       <div className="pointer-events-none absolute -left-28 -top-24 h-80 w-80 rounded-full border-28 border-deem-red/10 sm:h-96 sm:w-96" />
 
       <div className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full border-28 border-deem-blue/10 sm:h-96 sm:w-96" />
@@ -73,7 +74,6 @@ const ForgotPassword = () => {
       <main className="relative z-10 flex min-h-dvh items-center justify-center px-4 py-6 sm:px-6">
         <div className="w-134.5 max-w-[calc(100vw-32px)]">
           <div className="rounded-[22px] border border-slate-100 bg-white px-7 py-7 shadow-[0_10px_30px_-5px_rgba(20,70,103,0.12)] sm:px-9 sm:py-8">
- 
             <div className="flex justify-center">
               <img
                 src={logo}
@@ -81,7 +81,7 @@ const ForgotPassword = () => {
                 className="w-32 object-contain sm:w-36"
               />
             </div>
- 
+
             <div className="mt-5 text-center">
               <h1 className="text-2xl font-semibold tracking-tight text-deem-blue sm:text-3xl">
                 Forgot Password?
@@ -130,7 +130,7 @@ const ForgotPassword = () => {
                 {!loading && <ArrowRight size={18} strokeWidth={2} />}
               </button>
             </form>
- 
+
             <div className="mt-5 text-center">
               <button
                 type="button"
