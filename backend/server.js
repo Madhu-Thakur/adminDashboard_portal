@@ -4,7 +4,6 @@ const swaggerDocument = require("./swagger.json");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
-
 const cors = require("cors");
 require("dotenv").config();
 
@@ -36,20 +35,15 @@ const policyRoutes = require("./routes/policyRoutes");
 
 const indentRoutes = require("./routes/indentRoutes");
 
-
 const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:8081",
-    ],
-    
-    credentials: true,
-  })
-);
+    origin: ["http://localhost:5173", "http://localhost:8081"],
 
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 
@@ -64,13 +58,17 @@ app.use("/api/invoices", invoiceRoutes);
 app.use("/api/vouchers", voucherRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+// Mobile app compatibility endpoints
+app.use("/api/announcement", announcementRoutes);
+app.use("/api/notification", notificationRoutes);
+
+
 app.use("/api/roles", roleRoutes);
 // app.use("/api/joining-candidates", joiningCandidateRoutes);
 app.use("/api", joiningCandidateRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-
 
 app.use("/api", authRoutes);
 app.use("/api", profileRoutes);

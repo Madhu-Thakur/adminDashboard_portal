@@ -130,6 +130,49 @@ const getNotifications = async (req, res) => {
   }
 };
 
+
+
+// Get Notifications By Role
+const getNotificationsByRole = async (req, res) => {
+  try {
+    const { role } = req.params;
+
+    if (!role || !Number.isInteger(Number(role))) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid role ID is required",
+      });
+    }
+
+    const notifications = await getAllNotifications();
+
+    const filteredNotifications = notifications.filter((notification) => {
+      if (!notification.role) return false;
+
+      const roles = String(notification.role)
+        .split(",")
+        .map((item) => item.trim());
+
+      return roles.includes(String(role));
+    });
+
+    res.status(200).json({
+      success: true,
+      data: filteredNotifications,
+    });
+  } catch (error) {
+    console.error("Get Notifications By Role Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch notifications",
+    });
+  }
+};
+
+
+
+
 // Get Notification By ID
 const getNotification = async (req, res) => {
   try {
@@ -267,6 +310,7 @@ const removeNotification = async (req, res) => {
 module.exports = {
   addNotification,
   getNotifications,
+  getNotificationsByRole,  // added this line to export the new function
   getNotification,
   editNotification,
   removeNotification,
