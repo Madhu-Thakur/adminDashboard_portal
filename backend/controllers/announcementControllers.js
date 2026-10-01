@@ -135,15 +135,85 @@ const addAnnouncement = async (req, res) => {
 
 
 // Get All Announcements
+// const getAnnouncements = async (req, res) => {
+//   try {
+//     const { role } = req.query;
+
+//     const announcements = await getAllAnnouncements();
+
+//     let filteredAnnouncements = announcements;
+
+//     // If role is provided, filter announcements for that role
+//     if (role) {
+//       if (!Number.isInteger(Number(role))) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Valid role ID is required",
+//         });
+//       }
+
+//       filteredAnnouncements = announcements.filter((announcement) => {
+//         if (!announcement.role) return false;
+
+//         const roles = String(announcement.role)
+//           .split(",")
+//           .map((item) => item.trim());
+
+//         return (
+//           roles.includes(String(role)) ||
+//           String(announcement.role).toLowerCase() === "all"
+//         );
+//       });
+//     }
+
+//     // Remove expired announcements
+//     const now = new Date();
+
+//     filteredAnnouncements = filteredAnnouncements.filter((announcement) => {
+//       if (
+//         !announcement.expiry_date ||
+//         announcement.expiry_date === "0000-00-00"
+//       ) {
+//         return true;
+//       }
+
+//       const expiryDateTime = new Date(
+//         `${announcement.expiry_date} ${
+//           announcement.expiry_time || "23:59:59"
+//         }`
+//       );
+
+//       return expiryDateTime >= now;
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       data: filteredAnnouncements,
+//     });
+//   } catch (error) {
+//     console.error("Get Announcements Error:", error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch announcements",
+//     });
+//   }
+// };
+
+
+// Get All Announcements
 const getAnnouncements = async (req, res) => {
   try {
     const { role } = req.query;
 
     const announcements = await getAllAnnouncements();
 
-    let filteredAnnouncements = announcements;
+    // Only active announcements
+    let filteredAnnouncements = announcements.filter(
+      (announcement) => Number(announcement.status) === 1
+    );
 
-    // If role is provided, filter announcements for that role
+    // Filter by role
     if (role) {
       if (!Number.isInteger(Number(role))) {
         return res.status(400).json({
@@ -152,7 +222,7 @@ const getAnnouncements = async (req, res) => {
         });
       }
 
-      filteredAnnouncements = announcements.filter((announcement) => {
+      filteredAnnouncements = filteredAnnouncements.filter((announcement) => {
         if (!announcement.role) return false;
 
         const roles = String(announcement.role)
@@ -170,17 +240,27 @@ const getAnnouncements = async (req, res) => {
     const now = new Date();
 
     filteredAnnouncements = filteredAnnouncements.filter((announcement) => {
-      if (
-        !announcement.expiry_date ||
-        announcement.expiry_date === "0000-00-00"
-      ) {
+      // No expiry date means announcement does not expire
+      if (!announcement.expiry_date) {
         return true;
       }
 
+      let expiryDate;
+
+      // MySQL DATE may come as a JavaScript Date object
+      if (announcement.expiry_date instanceof Date) {
+        expiryDate = announcement.expiry_date
+          .toISOString()
+          .split("T")[0];
+      } else {
+        expiryDate = String(announcement.expiry_date)
+          .split("T")[0];
+      }
+
+      const expiryTime = announcement.expiry_time || "23:59:59";
+
       const expiryDateTime = new Date(
-        `${announcement.expiry_date} ${
-          announcement.expiry_time || "23:59:59"
-        }`
+        `${expiryDate}T${expiryTime}`
       );
 
       return expiryDateTime >= now;
