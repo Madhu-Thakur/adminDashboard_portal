@@ -128,12 +128,13 @@ exports.login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      token: accessToken, // ← ADD THIS 
+      token: accessToken, 
       user: {
         id: user.id,
         name: user.emp_name,
         username: user.username,
         role: role,
+        roleId: user.roleId,
         branch: user.bname,
         file: user.file,
       },
@@ -230,6 +231,7 @@ exports.getMe = async (req, res) => {
         name: user.emp_name,
         username: user.username,
         role: user.role?.toUpperCase(),
+        roleId: user.roleId,
         branch: user.bname,
         file: user.file,
       },

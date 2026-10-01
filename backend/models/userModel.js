@@ -5,16 +5,20 @@ exports.findUserByUsername = async (username) => {
   const [rows] = await db.query(
     `
     SELECT
-      id,
-      emp_name,
-      username,
-      password,
-      role,
-      bname,
-      status,
-      file
-    FROM \`user\`
-    WHERE username = ?
+      u.id,
+      u.emp_name,
+      u.username,
+      u.password,
+      u.role,
+      r.id AS roleId,
+      r.display_name AS roleName,
+      u.bname,
+      u.status,
+      u.file
+    FROM \`user\` u
+    LEFT JOIN \`role\` r
+      ON LOWER(u.role) = LOWER(r.display_name)
+    WHERE u.username = ?
     LIMIT 1
     `,
     [username]
@@ -40,16 +44,20 @@ exports.findUserById = async (userId) => {
   const [rows] = await db.query(
     `
     SELECT
-      id,
-      emp_name,
-      username,
-      password,
-      role,
-      bname,
-      status,
-      file
-    FROM \`user\`
-    WHERE id = ?
+      u.id,
+      u.emp_name,
+      u.username,
+      u.password,
+      u.role,
+      r.id AS roleId,
+      r.display_name AS roleName,
+      u.bname,
+      u.status,
+      u.file
+    FROM \`user\` u
+    LEFT JOIN \`role\` r
+      ON LOWER(u.role) = LOWER(r.display_name)
+    WHERE u.id = ?
     LIMIT 1
     `,
     [userId]
