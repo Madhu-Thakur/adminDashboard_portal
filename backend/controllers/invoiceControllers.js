@@ -58,7 +58,7 @@ const getGSTType = async (addressId) => {
         customer_id,
         state,
         country
-      FROM address_table
+      FROM address
       WHERE id = ?
     `,
     [addressId],

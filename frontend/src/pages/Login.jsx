@@ -61,6 +61,10 @@ const Login = () => {
   localStorage.setItem("access_token", data.token);
 }
 
+if (data.user) {
+  localStorage.setItem("user", JSON.stringify(data.user));
+}
+
       const userRole = data.user?.role?.toUpperCase();
 
       if (userRole === "ADMIN") {
@@ -68,10 +72,10 @@ const Login = () => {
         return;
       }
 
-      if (userRole === "STAFF") {
-       toast.info("Staff users should use the Employee mobile app.");
-        return;
-      }
+     if (userRole === "STAFF") {
+  navigate("/dashboard");
+  return;
+}
 
     toast.error("You are not authorized to access this application.");
     } catch (error) {

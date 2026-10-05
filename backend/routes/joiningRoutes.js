@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const controller = require('../controllers/joiningController');
-
-// 
+ 
 const storage = multer.memoryStorage();
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
@@ -12,8 +11,10 @@ const cpUpload = upload.fields([
   { name: 'resume', maxCount: 1 },
   { name: 'degree', maxCount: 1 },
   { name: 'aadharc', maxCount: 1 },
+  { name: 'aadhar', maxCount: 1 },
   { name: 'sslip', maxCount: 1 },
   { name: 'passbook', maxCount: 1 },
+  { name: 'pexp', maxCount: 1 },
 ]);
 
 router.post('/join-candidate', cpUpload, controller.createJoinCandidate);

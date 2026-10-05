@@ -33,6 +33,10 @@ const birthdayRoutes = require("./routes/birthdayRoutes");
 // const joiningRoutes = require("./routes/joiningRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 
+const careerRoutes = require("./routes/careerRoutes");
+const trainingRoutes = require("./routes/trainingRoutes");
+const contactRoutes = require("./routes/contactRoutes");
+
 const indentRoutes = require("./routes/indentRoutes");
 
 const app = express();
@@ -83,6 +87,10 @@ app.use("/api", birthdayRoutes);
 // app.use("/api", joiningRoutes);
 app.use("/api", policyRoutes);
 app.use("/api", indentRoutes);
+
+app.use("/api", careerRoutes);
+app.use("/api", trainingRoutes);
+app.use("/api", contactRoutes);
 
 app.get("/", (req, res) => {
   res.json({

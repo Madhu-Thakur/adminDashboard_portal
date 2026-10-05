@@ -1,7 +1,49 @@
 const db = require("../config/db");
 
+// const generateInvoiceNumber = async (connection) => {
+//   const year = new Date().getFullYear();
+
+//   const [rows] = await connection.execute(
+//     `
+//       SELECT invoice_number
+//       FROM invoices
+//       WHERE invoice_number LIKE ?
+//       ORDER BY id DESC
+//       LIMIT 1
+//     `,
+//     [`INV-${year}-%`],
+//   );
+
+//   let nextNumber = 1;
+
+//   if (rows.length > 0) {
+//     const lastInvoiceNumber = rows[0].invoice_number;
+
+//     const lastNumber = parseInt(lastInvoiceNumber.split("-").pop(), 10);
+
+//     if (!Number.isNaN(lastNumber)) {
+//       nextNumber = lastNumber + 1;
+//     }
+//   }
+
+//   return `INV-${year}-${String(nextNumber).padStart(4, "0")}`;
+// };
 const generateInvoiceNumber = async (connection) => {
-  const year = new Date().getFullYear();
+
+  const today = new Date();
+
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1;
+
+  // Financial year starts from April
+  const financialYearStart =
+    currentMonth >= 4 ? currentYear : currentYear - 1;
+
+  const financialYearEnd = financialYearStart + 1;
+
+  const financialYear = `${String(financialYearStart).slice(-2)}-${String(
+    financialYearEnd
+  ).slice(-2)}`;
 
   const [rows] = await connection.execute(
     `
@@ -11,7 +53,7 @@ const generateInvoiceNumber = async (connection) => {
       ORDER BY id DESC
       LIMIT 1
     `,
-    [`INV-${year}-%`],
+    [`INV/${financialYear}/%`],
   );
 
   let nextNumber = 1;
@@ -19,15 +61,19 @@ const generateInvoiceNumber = async (connection) => {
   if (rows.length > 0) {
     const lastInvoiceNumber = rows[0].invoice_number;
 
-    const lastNumber = parseInt(lastInvoiceNumber.split("-").pop(), 10);
+    const lastNumber = parseInt(
+      lastInvoiceNumber.split("/").pop(),
+      10,
+    );
 
     if (!Number.isNaN(lastNumber)) {
       nextNumber = lastNumber + 1;
     }
   }
 
-  return `INV-${year}-${String(nextNumber).padStart(4, "0")}`;
+  return `INV/${financialYear}/${String(nextNumber).padStart(4, "0")}`;
 };
+
 
 const createInvoice = async (invoiceData, items) => {
   const connection = await db.getConnection();
@@ -220,7 +266,7 @@ const getInvoiceById = async (id) => {
       INNER JOIN customers c
         ON i.customer_id = c.id
 
-      LEFT JOIN address_table a
+      LEFT JOIN address a
         ON i.address_id = a.id
 
       WHERE i.id = ?

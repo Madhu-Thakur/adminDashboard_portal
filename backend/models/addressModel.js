@@ -14,7 +14,7 @@ const createAddress = async (addressData) => {
 
   const [result] = await db.execute(
     `
-      INSERT INTO address_table
+      INSERT INTO address
       (
         customer_id,
         address_type,
@@ -54,7 +54,7 @@ const getAllAddresses = async () => {
         pincode,
         country,
         created_at
-      FROM address_table
+      FROM address
       ORDER BY id DESC
     `,
   );
@@ -76,7 +76,7 @@ const getAddressesByCustomerId = async (customerId) => {
         pincode,
         country,
         created_at
-      FROM address_table
+      FROM address
       WHERE customer_id = ?
       ORDER BY id DESC
     `,
@@ -100,7 +100,7 @@ const getAddressById = async (id) => {
         pincode,
         country,
         created_at
-      FROM address_table
+      FROM address
       WHERE id = ?
     `,
     [id],
@@ -123,7 +123,7 @@ const updateAddress = async (id, addressData) => {
 
   const [result] = await db.execute(
     `
-      UPDATE address_table
+      UPDATE address
       SET
         customer_id = ?,
         address_type = ?,
@@ -153,7 +153,7 @@ const updateAddress = async (id, addressData) => {
 const deleteAddress = async (id) => {
   const [result] = await db.execute(
     `
-      DELETE FROM address_table
+      DELETE FROM address
       WHERE id = ?
     `,
     [id],
