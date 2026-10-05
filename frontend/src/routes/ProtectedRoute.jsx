@@ -8,12 +8,22 @@ const ProtectedRoute = () => {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          setIsAuthenticated(false);
+          return;
+        }
+
         const response = await fetch(AUTH_ME_URL, {
           method: "GET",
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (!response.ok) {
+          localStorage.removeItem("access_token");
           setIsAuthenticated(false);
           return;
         }
