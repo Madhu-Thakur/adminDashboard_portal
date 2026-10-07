@@ -8,6 +8,7 @@ const {
 } = require("../models/joiningCandidateModel");
 
 const cloudinary = require("../config/cloudinary");
+const { Resend } = require("resend");
 
 const DOCUMENT_FIELDS = [
   "photo",
@@ -174,10 +175,54 @@ const addJoiningCandidate = async (req, res) => {
       last_update,
     });
 
+    let emailSent = false;
+    let emailWarning;
+    if (!process.env.EMAIL_FROM || !process.env.EMAIL_TO || !process.env.RESEND_API_KEY) {
+      emailWarning = "Application saved, but email notification is not configured";
+      console.error("Joining email not sent: RESEND_API_KEY, EMAIL_FROM, or EMAIL_TO is missing");
+    } else {
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const { error } = await resend.emails.send({
+          from: process.env.EMAIL_FROM,
+          to: [process.env.EMAIL_TO],
+          subject: `New Joining Application: ${ename} - ${mobile}`,
+          replyTo: email,
+          html: `
+            <h2>New Joining Application Submitted</h2>
+            <p><b>Name:</b> ${ename}</p>
+            <p><b>Father Name:</b> ${fname || ""}</p>
+            <p><b>DOB:</b> ${dob || ""}</p>
+            <p><b>Gender:</b> ${gender || ""}</p>
+            <p><b>Address:</b> ${address || ""}</p>
+            <p><b>Mobile:</b> ${mobile}</p>
+            <p><b>Email:</b> ${email}</p>
+            <p><b>Aadhar:</b> ${aadhar || ""}</p>
+            <p><b>Marital Status:</b> ${mstatus || ""}</p>
+            <p><b>Qualification:</b> ${qual || ""}</p>
+            <p><b>Higher Study:</b> ${hstudy || ""}</p>
+            <p><b>LinkedIn:</b> ${linkedin || ""}</p>
+          `,
+        });
+
+        if (error) {
+          emailWarning = "Application saved, but the email notification could not be sent";
+          console.error("Joining email failed:", error);
+        } else {
+          emailSent = true;
+        }
+      } catch (mailError) {
+        emailWarning = "Application saved, but the email notification could not be sent";
+        console.error("Joining email failed:", mailError);
+      }
+    }
+
     return res.status(201).json({
       success: true,
       message: "Application submitted",
       id: candidateId,
+      emailSent,
+      ...(emailWarning ? { emailWarning } : {}),
     });
   } catch (error) {
     console.error("Create Joining Candidate Error:", error);
