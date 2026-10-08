@@ -1,4 +1,4 @@
- const {
+const {
   createNotification,
   getAllNotifications,
   getNotificationById,
@@ -6,16 +6,8 @@
   deleteNotification,
 } = require("../models/notificationModel");
 
-const {
-  getWorkingEmployeesByRole,
-} = require("../models/employeeRecipientModel");
-
-const {
-  sendNotificationMail,
-} = require("../services/notificationMailService");
-
 const { getAllRoles } = require("../models/roleModel");
-
+ 
 const validateRoles = async (role) => {
   if (!role) {
     return null;
@@ -102,48 +94,6 @@ const addNotification = async (req, res) => {
       status ?? 1
     );
 
-    // Send notification email to working employees
-    try {
-      const employeesMap = new Map();
-
-      for (const roleId of roles) {
-        const employees = await getWorkingEmployeesByRole(roleId);
-
-        for (const employee of employees) {
-          if (
-            employee.email &&
-            !employeesMap.has(employee.email.toLowerCase())
-          ) {
-            employeesMap.set(
-              employee.email.toLowerCase(),
-              employee
-            );
-          }
-        }
-      }
-
-      const employees = Array.from(employeesMap.values());
-
-      await Promise.all(
-        employees.map((employee) =>
-          sendNotificationMail({
-            employeeName: employee.ename,
-            employeeEmail: employee.email,
-            message: notify,
-          })
-        )
-      );
-
-      console.log(
-        `Notification emails processed for ${employees.length} employee(s)`
-      );
-    } catch (mailError) {
-      console.error(
-        "Notification Email Error:",
-        mailError.message
-      );
-    }
-
     res.status(201).json({
       success: true,
       message: "Notification created successfully",
@@ -179,6 +129,8 @@ const getNotifications = async (req, res) => {
     });
   }
 };
+
+
 
 // Get Notifications By Role
 const getNotificationsByRole = async (req, res) => {
@@ -217,6 +169,9 @@ const getNotificationsByRole = async (req, res) => {
     });
   }
 };
+
+
+
 
 // Get Notification By ID
 const getNotification = async (req, res) => {
@@ -355,7 +310,7 @@ const removeNotification = async (req, res) => {
 module.exports = {
   addNotification,
   getNotifications,
-  getNotificationsByRole,
+  getNotificationsByRole,  // added this line to export the new function
   getNotification,
   editNotification,
   removeNotification,

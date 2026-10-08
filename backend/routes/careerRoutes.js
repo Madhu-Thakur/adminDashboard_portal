@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const { Resend } = require('resend');
 const router = express.Router();
+const { normalizeEmailAddress, isValidEmailAddress } = require("../utils/emailValidation");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,7 +13,11 @@ const upload = multer({
 
 router.post('/career/apply', upload.single('resume'), async (req, res) => {
   try {
-    const { name, email, phone, domain, experience, jobType } = req.body;
+    const { name, phone, domain, experience, jobType } = req.body;
+    const email = normalizeEmailAddress(req.body.email);
+    if (!isValidEmailAddress(email)) {
+      return res.status(400).json({ success: false, message: "A valid reply email address is required" });
+    }
     const file = req.file;
 
     if (!file) return res.status(400).json({ success: false, message: "Resume required" });

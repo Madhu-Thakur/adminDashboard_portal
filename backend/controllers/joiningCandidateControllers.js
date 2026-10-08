@@ -9,6 +9,7 @@ const {
 
 const cloudinary = require("../config/cloudinary");
 const { Resend } = require("resend");
+const { normalizeEmailAddress, isValidEmailAddress } = require("../utils/emailValidation");
 
 const DOCUMENT_FIELDS = [
   "photo",
@@ -125,7 +126,6 @@ const addJoiningCandidate = async (req, res) => {
       gender,
       address,
       mobile,
-      email,
       aadhar,
       mstatus,
       qual,
@@ -133,12 +133,19 @@ const addJoiningCandidate = async (req, res) => {
       linkedin,
       pexp,
     } = req.body;
+    const email = normalizeEmailAddress(req.body.email);
 
     // Same validation as Divya's POST
     if (!ename || !mobile || !email) {
       return res.status(400).json({
         success: false,
         message: "ename, mobile, email required",
+      });
+    }
+    if (!isValidEmailAddress(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid email address is required",
       });
     }
 

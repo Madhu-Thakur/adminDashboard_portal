@@ -6,15 +6,6 @@ const {
   deleteAnnouncement,
 } = require("../models/announcementModel");
 
-const {
-  getWorkingEmployeesByRole,
-} = require("../models/employeeRecipientModel");
-
-const {
-  sendAnnouncementMail,
-} = require("../services/notificationMailService");
-
-
 const { getAllRoles } = require("../models/roleModel");
 
 const ALLOWED_TYPES = ["message", "alert"];
@@ -95,68 +86,23 @@ const addAnnouncement = async (req, res) => {
         message: "Type must be Message or Alert",
       });
     }
- 
-const result = await createAnnouncement(
-  String(announce).trim(),
-  roles.join(","),
-  announcementType,
-  expiry_date || null,
-  expiry_time || null,
-  status ?? 1
-);
 
-// Send announcement email to working employees
-try {
-  const employeesMap = new Map();
+    const result = await createAnnouncement(
+      String(announce).trim(),
+      roles.join(","),
+      announcementType,
+      expiry_date || null,
+      expiry_time || null,
+      status ?? 1
+    );
 
-  for (const roleId of roles) {
-    const employees = await getWorkingEmployeesByRole(roleId);
-
-    for (const employee of employees) {
-      if (
-        employee.email &&
-        !employeesMap.has(employee.email.toLowerCase())
-      ) {
-        employeesMap.set(
-          employee.email.toLowerCase(),
-          employee
-        );
-      }
-    }
-  }
-
-  const employees = Array.from(employeesMap.values());
-
-  await Promise.all(
-    employees.map((employee) =>
-      sendAnnouncementMail({
-        employeeName: employee.ename,
-        employeeEmail: employee.email,
-        message: announce,
-        type: announcementType,
-      })
-    )
-  );
-
-  console.log(
-    `Announcement emails processed for ${employees.length} employee(s)`
-  );
-} catch (mailError) {
-  console.error(
-    "Announcement Email Error:",
-    mailError.message
-  );
-}
-
-res.status(201).json({
-  success: true,
-  message: "Announcement created successfully",
-  data: {
-    id: result.insertId,
-  },
-});
-
-
+    res.status(201).json({
+      success: true,
+      message: "Announcement created successfully",
+      data: {
+        id: result.insertId,
+      },
+    });
   } catch (error) {
     console.error("Add Announcement Error:", error);
 
@@ -167,7 +113,94 @@ res.status(201).json({
   }
 };
 
- 
+// Get All Announcements
+// const getAnnouncements = async (req, res) => {
+//   try {
+//     const announcements = await getAllAnnouncements();
+
+//     res.status(200).json({
+//       success: true,
+//       data: announcements,
+//     });
+//   } catch (error) {
+//     console.error("Get Announcements Error:", error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch announcements",
+//     });
+//   }
+// };
+
+
+
+// Get All Announcements
+// const getAnnouncements = async (req, res) => {
+//   try {
+//     const { role } = req.query;
+
+//     const announcements = await getAllAnnouncements();
+
+//     let filteredAnnouncements = announcements;
+
+//     // If role is provided, filter announcements for that role
+//     if (role) {
+//       if (!Number.isInteger(Number(role))) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Valid role ID is required",
+//         });
+//       }
+
+//       filteredAnnouncements = announcements.filter((announcement) => {
+//         if (!announcement.role) return false;
+
+//         const roles = String(announcement.role)
+//           .split(",")
+//           .map((item) => item.trim());
+
+//         return (
+//           roles.includes(String(role)) ||
+//           String(announcement.role).toLowerCase() === "all"
+//         );
+//       });
+//     }
+
+//     // Remove expired announcements
+//     const now = new Date();
+
+//     filteredAnnouncements = filteredAnnouncements.filter((announcement) => {
+//       if (
+//         !announcement.expiry_date ||
+//         announcement.expiry_date === "0000-00-00"
+//       ) {
+//         return true;
+//       }
+
+//       const expiryDateTime = new Date(
+//         `${announcement.expiry_date} ${
+//           announcement.expiry_time || "23:59:59"
+//         }`
+//       );
+
+//       return expiryDateTime >= now;
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       data: filteredAnnouncements,
+//     });
+//   } catch (error) {
+//     console.error("Get Announcements Error:", error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch announcements",
+//     });
+//   }
+// };
+
+
 // Get All Announcements
 const getAnnouncements = async (req, res) => {
   try {
@@ -246,7 +279,10 @@ const getAnnouncements = async (req, res) => {
     });
   }
 };
- 
+
+
+
+
 // Get Announcement By ID
 const getAnnouncement = async (req, res) => {
   try {

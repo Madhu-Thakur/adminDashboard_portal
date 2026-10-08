@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "brace-expansion": "^5.0.12",
     "cloudinary": "^2.11.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -24,10 +25,11 @@
     "multer-storage-cloudinary-v2": "^1.0.3",
     "mysql2": "^3.24.2",
     "nodemailer": "^10.0.12",
+    "proxy-addr": "^2.0.8",
     "resend": "^6.30.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^1.14.10"
   }
 }

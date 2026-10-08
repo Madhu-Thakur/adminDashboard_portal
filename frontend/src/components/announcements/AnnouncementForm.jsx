@@ -256,7 +256,7 @@ const AnnouncementForm = ({
                   className="h-4 w-4 accent-deem-red cursor-pointer"
                 />
 
-                <span>{role.display_name}</span>
+                <span>{role.role}</span>
               </label>
             ))}
           </div>

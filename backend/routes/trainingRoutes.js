@@ -2,11 +2,16 @@ const express = require('express');
 const { Resend } = require('resend');
 const router = express.Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
+const { normalizeEmailAddress, isValidEmailAddress } = require("../utils/emailValidation");
 
 router.post('/training/apply', async (req, res) => {
   try {
     // console.log(" TRAINING HIT:", req.body);
-    const { name, email, phone, course, mode } = req.body;
+    const { name, phone, course, mode } = req.body;
+    const email = normalizeEmailAddress(req.body.email);
+    if (!isValidEmailAddress(email)) {
+      return res.status(400).json({ success: false, message: "A valid reply email address is required" });
+    }
 
     // console.log(" Sending to:", process.env.EMAIL_INFO, "From:", process.env.EMAIL_FROM);
 
