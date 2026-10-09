@@ -10,12 +10,45 @@ exports.punch = async (req, res) => {
     console.log("BODY:", req.body);
     console.log("FILE:", req.file);
 
-    const { eid, email, date, day, intime, outtime, latitude, longitude, ename } = req.body;
+    let { eid, email, date, day, intime, outtime, latitude, longitude, ename } = req.body;
     const fileUrl = req.file? req.file.path : "";
 
     if (!eid ||!date) {
       return res.status(400).json({ success: false, message: "eid and date required" });
     }
+
+    let employeeRows = [];
+    if (email) {
+      const [rows] = await db.query(
+        `SELECT eid, ename, email, pemail
+         FROM employee
+         WHERE LOWER(TRIM(email))=LOWER(TRIM(?))
+            OR LOWER(TRIM(pemail))=LOWER(TRIM(?))
+         ORDER BY CASE
+           WHEN LOWER(TRIM(email))=LOWER(TRIM(?)) THEN 0
+           ELSE 1
+         END
+         LIMIT 1`,
+        [email, email, email, email]
+      );
+      employeeRows = rows;
+    }
+    if (employeeRows.length === 0) {
+      const [rows] = await db.query(
+        `SELECT eid, ename, email, pemail
+         FROM employee WHERE CAST(eid AS CHAR)=? LIMIT 1`,
+        [String(eid)]
+      );
+      employeeRows = rows;
+    }
+    if (employeeRows.length === 0) {
+      return res.status(404).json({ success: false, message: "Employee record not found" });
+    }
+
+    const employee = employeeRows[0];
+    eid = String(employee.eid);
+    ename = employee.ename || ename;
+    email = employee.email || employee.pemail || email;
 
     const today = getTodayIndia();
     // 
@@ -58,8 +91,16 @@ exports.getAttendance = async (req, res) => {
   try {
     const { eid } = req.params;
     const [rows] = await db.query(
-      "SELECT * FROM attendance WHERE eid =? ORDER BY STR_TO_DATE(date, '%Y-%m-%d') DESC",
-      [eid]
+      `SELECT DISTINCT a.*
+       FROM attendance a
+       LEFT JOIN employee e ON CAST(e.eid AS CHAR)=?
+       WHERE a.eid=?
+          OR (a.email IS NOT NULL AND (
+            LOWER(TRIM(a.email))=LOWER(TRIM(e.email))
+            OR LOWER(TRIM(a.email))=LOWER(TRIM(e.pemail))
+          ))
+       ORDER BY STR_TO_DATE(a.date, '%Y-%m-%d') DESC`,
+      [eid, eid]
     );
     res.json(rows);
   } catch (error) {

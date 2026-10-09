@@ -1,4 +1,4 @@
-const {
+ const {
   createAnnouncement,
   getAllAnnouncements,
   getAnnouncementById,
@@ -95,7 +95,7 @@ const addAnnouncement = async (req, res) => {
         message: "Type must be Message or Alert",
       });
     }
- 
+
 const result = await createAnnouncement(
   String(announce).trim(),
   roles.join(","),
@@ -167,7 +167,7 @@ res.status(201).json({
   }
 };
 
- 
+
 // Get All Announcements
 const getAnnouncements = async (req, res) => {
   try {
@@ -246,7 +246,7 @@ const getAnnouncements = async (req, res) => {
     });
   }
 };
- 
+
 // Get Announcement By ID
 const getAnnouncement = async (req, res) => {
   try {

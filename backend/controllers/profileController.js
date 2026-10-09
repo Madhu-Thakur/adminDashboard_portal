@@ -25,8 +25,16 @@ exports.getPersonalDetail = async (req, res) => {
          e.address,
          e.file
        FROM employee e
-       WHERE e.pemail=? OR e.email=? OR e.eid=? LIMIT 1`,
-      [identifier, identifier, identifier]
+       WHERE LOWER(TRIM(e.pemail))=LOWER(TRIM(?))
+          OR LOWER(TRIM(e.email))=LOWER(TRIM(?))
+          OR CAST(e.eid AS CHAR)=?
+       ORDER BY CASE
+         WHEN LOWER(TRIM(e.email))=LOWER(TRIM(?)) THEN 0
+         WHEN LOWER(TRIM(e.pemail))=LOWER(TRIM(?)) THEN 1
+         ELSE 2
+       END
+       LIMIT 1`,
+      [identifier, identifier, identifier, identifier, identifier]
     );
 
     if (!rows.length) {
@@ -78,8 +86,16 @@ exports.getOfficialDetail = async (req, res) => {
          d.des as des_name
        FROM employee e
        LEFT JOIN des d ON d.id = e.des
-       WHERE e.pemail=? OR e.email=? OR e.eid=? LIMIT 1`,
-      [identifier, identifier, identifier]
+       WHERE LOWER(TRIM(e.pemail))=LOWER(TRIM(?))
+          OR LOWER(TRIM(e.email))=LOWER(TRIM(?))
+          OR CAST(e.eid AS CHAR)=?
+       ORDER BY CASE
+         WHEN LOWER(TRIM(e.email))=LOWER(TRIM(?)) THEN 0
+         WHEN LOWER(TRIM(e.pemail))=LOWER(TRIM(?)) THEN 1
+         ELSE 2
+       END
+       LIMIT 1`,
+      [identifier, identifier, identifier, identifier, identifier]
     );
 
     if (!rows.length) {
@@ -117,26 +133,26 @@ exports.getOfficialDetail = async (req, res) => {
 // CHANGE PASSWORD   
 exports.changePassword = async (req, res) => {
   try {
-    const { id, username, newPassword, confirmPassword } = req.body;
+    const { newPassword, confirmPassword } = req.body;
 
-    if (!newPassword ||!confirmPassword) {
+    if (!newPassword || !confirmPassword) {
       return res.status(400).json({ success: false, message: "New and confirm password required" });
     }
 
-    if (newPassword!== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       return res.status(400).json({ success: false, message: "Passwords do not match" });
     }
 
-    if (!id &&!username) {
-      return res.status(400).json({ success: false, message: "id or username required" });
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Authenticated user not found" });
     }
 
-    // user id se update
     const hashed = await bcrypt.hash(newPassword, 10);
 
     const [result] = await db.query(
-      id? `UPDATE user SET password=? WHERE id=?` : `UPDATE user SET password=? WHERE username=?`,
-      [hashed, id || username]
+      "UPDATE `user` SET password = ? WHERE id = ?",
+      [hashed, userId]
     );
 
     if (result.affectedRows === 0) {
@@ -146,7 +162,7 @@ exports.changePassword = async (req, res) => {
     return res.json({ success: true, message: "Password changed successfully" });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false, message: "Server error" });
+    console.error("CHANGE PASSWORD ERROR:", err);
+    return res.status(500).json({ success: false, message: "Could not change password" });
   }
 };

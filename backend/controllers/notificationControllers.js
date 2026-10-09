@@ -1,4 +1,4 @@
- const {
+  const {
   createNotification,
   getAllNotifications,
   getNotificationById,
