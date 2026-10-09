@@ -11,13 +11,13 @@ exports.findUserByUsername = async (username) => {
       u.password,
       u.role,
       r.id AS roleId,
-      r.display_name AS roleName,
+      r.role AS roleName,
       u.bname,
       u.status,
       u.file
     FROM \`user\` u
     LEFT JOIN \`role\` r
-      ON LOWER(u.role) = LOWER(r.display_name)
+      ON LOWER(u.role) = LOWER(r.role)
     WHERE u.username = ?
     LIMIT 1
     `,
@@ -50,13 +50,13 @@ exports.findUserById = async (userId) => {
       u.password,
       u.role,
       r.id AS roleId,
-      r.display_name AS roleName,
+      r.role AS roleName,
       u.bname,
       u.status,
       u.file
     FROM \`user\` u
     LEFT JOIN \`role\` r
-      ON LOWER(u.role) = LOWER(r.display_name)
+      ON LOWER(u.role) = LOWER(r.role)
     WHERE u.id = ?
     LIMIT 1
     `,

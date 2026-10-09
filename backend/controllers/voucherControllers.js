@@ -2,6 +2,7 @@ const {
   createVoucher,
   getAllVouchers,
   getAvailableSaleInvoices,
+  getAvailablePurchases,
 } = require("../models/voucherModel");
 
 const { getInvoiceById } = require("../models/invoiceModel");
@@ -25,6 +26,7 @@ const addVoucher = async (req, res) => {
       transaction_date,
       transaction_type,
       invoice_id,
+      purchase_id,
       amount,
       cgst,
       sgst,
@@ -64,13 +66,16 @@ const addVoucher = async (req, res) => {
     }
 
     let finalInvoiceId = null;
+    let finalPurchaseId = null;
     let finalCustomerId = null;
     let finalAmount = 0;
     let finalCgst = 0;
     let finalSgst = 0;
     let finalIgst = 0;
 
-    // Sale Voucher
+    // =========================
+    // SALE VOUCHER
+    // =========================
     if (voucher_type === "Sale") {
       if (!invoice_id) {
         return res.status(400).json({
@@ -87,65 +92,40 @@ const addVoucher = async (req, res) => {
           message: "Selected invoice not found",
         });
       }
- 
+
       finalInvoiceId = Number(invoice_id);
+      finalPurchaseId = null;
       finalCustomerId = invoice.customer_id;
       finalAmount = Number(invoice.grand_total) || 0;
 
       finalCgst = Number(invoice.cgst) || 0;
       finalSgst = Number(invoice.sgst) || 0;
       finalIgst = Number(invoice.igst) || 0;
-    } else {
-      // Purchase Voucher
+    }
 
-      if (!isNonNegativeNumber(amount)) {
+    // =========================
+    // PURCHASE VOUCHER
+    // =========================
+    else {
+      if (!purchase_id) {
         return res.status(400).json({
           success: false,
-          message:
-            "Amount is required and must be a valid non-negative number",
+          message: "Purchase is required for Purchase vouchers",
         });
       }
 
-      if (
-        cgst !== undefined &&
-        cgst !== null &&
-        cgst !== "" &&
-        Number(cgst) < 0
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "CGST cannot be negative",
-        });
-      }
+      // Purchase amount and GST will be taken
+      // from the selected Purchase entry.
+      finalPurchaseId = Number(purchase_id);
+      finalInvoiceId = null;
+      finalCustomerId = null;
 
-      if (
-        sgst !== undefined &&
-        sgst !== null &&
-        sgst !== "" &&
-        Number(sgst) < 0
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "SGST cannot be negative",
-        });
-      }
-
-      if (
-        igst !== undefined &&
-        igst !== null &&
-        igst !== "" &&
-        Number(igst) < 0
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "IGST cannot be negative",
-        });
-      }
-
-      finalAmount = Number(amount) || 0;
-      finalCgst = Number(cgst) || 0;
-      finalSgst = Number(sgst) || 0;
-      finalIgst = Number(igst) || 0;
+      // These values are not taken from frontend.
+      // voucherModel will fetch them from purchase table.
+      finalAmount = 0;
+      finalCgst = 0;
+      finalSgst = 0;
+      finalIgst = 0;
     }
 
     const voucherId = await createVoucher({
@@ -153,12 +133,17 @@ const addVoucher = async (req, res) => {
       transaction_number: String(transaction_number || "").trim(),
       transaction_date,
       transaction_type: String(transaction_type).trim(),
+
       invoice_id: finalInvoiceId,
+      purchase_id: finalPurchaseId,
+
       customer_id: finalCustomerId,
+
       amount: finalAmount,
       cgst: finalCgst,
       sgst: finalSgst,
       igst: finalIgst,
+
       narration: narration || null,
     });
 
@@ -179,7 +164,10 @@ const addVoucher = async (req, res) => {
     });
   }
 };
- 
+
+// =========================
+// GET VOUCHERS
+// =========================
 const getVouchers = async (req, res) => {
   try {
     const { voucher_type, start_date, end_date } = req.query;
@@ -206,7 +194,9 @@ const getVouchers = async (req, res) => {
   }
 };
 
-// Get Available Sale Invoices
+// =========================
+// GET AVAILABLE SALE INVOICES
+// =========================
 const getAvailableSaleInvoicesList = async (req, res) => {
   try {
     const invoices = await getAvailableSaleInvoices();
@@ -227,8 +217,32 @@ const getAvailableSaleInvoicesList = async (req, res) => {
   }
 };
 
+// =========================
+// GET AVAILABLE PURCHASES
+// =========================
+const getAvailablePurchasesList = async (req, res) => {
+  try {
+    const purchases = await getAvailablePurchases();
+
+    return res.status(200).json({
+      success: true,
+      message: "Available purchases fetched successfully",
+      data: purchases,
+    });
+  } catch (error) {
+    console.error("Get Available Purchases Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch available purchases",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addVoucher,
   getVouchers,
   getAvailableSaleInvoicesList,
+  getAvailablePurchasesList,
 };

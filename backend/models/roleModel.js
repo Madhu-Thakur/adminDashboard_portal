@@ -2,7 +2,7 @@ const db = require("../config/db");
  
 const getAllRoles = async () => {
   const [rows] = await db.query(
-    `SELECT id, display_name, status
+    `SELECT id, role, status
      FROM role
      WHERE status = 1
      ORDER BY id ASC`,
@@ -13,13 +13,13 @@ const getAllRoles = async () => {
 
 const getActiveRoleNames = async () => {
   const [rows] = await db.query(
-    `SELECT display_name
+    `SELECT role
      FROM role
      WHERE status = 1
      ORDER BY id ASC`,
   );
 
-  return rows.map((role) => role.display_name);
+  return rows.map((role) => role.role);
 };
 
 module.exports = {

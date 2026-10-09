@@ -77,7 +77,7 @@ const AnnouncementTable = () => {
           (item) => String(item.id) === String(id),
         );
 
-        return role?.display_name || id;
+        return role?.role || id;
       })
       .join(", ");
   };

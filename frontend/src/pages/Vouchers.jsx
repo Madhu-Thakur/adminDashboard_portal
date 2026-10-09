@@ -337,7 +337,7 @@ const Vouchers = () => {
                   <th className="px-2 py-2">Trans No.</th>
                   <th className="px-2 py-2">Date</th>
                   <th className="px-2 py-2">Trans Type</th>
-                  <th className="px-2 py-2">Invoice No.</th>
+                  <th className="px-2 py-2">Reference No.</th>
                   <th className="px-2 py-2">Customer</th>
                   <th className="px-2 py-2 text-right">Amount</th>
                   <th className="px-2 py-2 text-right">CGST</th>
@@ -386,7 +386,9 @@ const Vouchers = () => {
                       </td>
 
                       <td className="px-2 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
-                        {voucher.invoice_id ? (
+                        {voucher.voucher_type === "Purchase" ? (
+                          voucher.purchase_invoice_number || "-"
+                        ) : voucher.invoice_id ? (
                           <button
                             type="button"
                             onClick={() =>
@@ -405,9 +407,11 @@ const Vouchers = () => {
                       </td>
 
                       <td className="px-2 py-3 font-medium text-gray-700 dark:text-gray-200">
-                        {voucher.customer_name && voucher.customer_id
-                          ? `${voucher.customer_name} (${voucher.customer_id})`
-                          : "-"}
+                        {voucher.voucher_type === "Purchase"
+                          ? voucher.purchase_company_name || "-"
+                          : voucher.customer_name && voucher.customer_id
+                            ? `${voucher.customer_name} (${voucher.customer_id})`
+                            : "-"}
                       </td>
 
                       <td className="px-2 py-3 text-right text-gray-700 dark:text-gray-200">

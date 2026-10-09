@@ -401,8 +401,6 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
- 
-
 exports.resetPassword = async (req, res) => {
   try {
     const {

@@ -4,6 +4,8 @@ export const AUTH_LOGIN_URL = `${API_BASE_URL}/api/auth/login`;
 export const AUTH_LOGOUT_URL = `${API_BASE_URL}/api/auth/logout`;
 export const AUTH_ME_URL = `${API_BASE_URL}/api/auth/me`;
 
+export const PURCHASE_API_URL = `${API_BASE_URL}/api/purchases`;  
+
 export const AUTH_FORGOT_PASSWORD_URL = `${API_BASE_URL}/api/auth/forgot-password`;
 
 export const AUTH_VERIFY_OTP_URL = `${API_BASE_URL}/api/auth/verify-otp`;

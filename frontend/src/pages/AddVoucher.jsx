@@ -7,6 +7,7 @@ import {
   AVAILABLE_SALE_INVOICES_URL,
   parseJson,
 } from "../utils/api";
+
 import { validateVoucher } from "../validation/voucherValidation";
 
 const VOUCHER_TYPES = ["Sale", "Purchase"];
@@ -34,8 +35,15 @@ const Voucher = () => {
   const [availableInvoices, setAvailableInvoices] = useState([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
 
+  // Purchase selection
+  const [availablePurchases, setAvailablePurchases] = useState([]);
+  const [loadingPurchases, setLoadingPurchases] = useState(false);
+
   const [voucherType, setVoucherType] = useState("");
+
   const [invoiceId, setInvoiceId] = useState("");
+  const [purchaseId, setPurchaseId] = useState("");
+
   const [transactionType, setTransactionType] = useState("");
   const [transactionDate, setTransactionDate] = useState("");
   const [transactionNumber, setTransactionNumber] = useState("");
@@ -49,7 +57,7 @@ const Voucher = () => {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [saving, setSaving] = useState(false);
-
+ 
   const fetchAvailableInvoices = async () => {
     try {
       setLoadingInvoices(true);
@@ -60,26 +68,64 @@ const Voucher = () => {
 
       if (!response.ok || !result.success) {
         throw new Error(
-          result.message || "Failed to fetch available invoices",
+          result.message || "Failed to fetch available invoices"
         );
       }
 
-      setAvailableInvoices(Array.isArray(result.data) ? result.data : []);
+      setAvailableInvoices(
+        Array.isArray(result.data) ? result.data : []
+      );
     } catch (error) {
       console.error("Fetch Available Invoices Error:", error);
+
       setAvailableInvoices([]);
       setSubmitError(error.message);
     } finally {
       setLoadingInvoices(false);
     }
   };
+ 
+  const fetchAvailablePurchases = async () => {
+    try {
+      setLoadingPurchases(true);
+      setSubmitError("");
+
+      const response = await fetch(
+        `${VOUCHER_API_URL}/available-purchases`
+      );
+
+      const result = await parseJson(response);
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Failed to fetch available purchases"
+        );
+      }
+
+      setAvailablePurchases(
+        Array.isArray(result.data) ? result.data : []
+      );
+    } catch (error) {
+      console.error("Fetch Available Purchases Error:", error);
+
+      setAvailablePurchases([]);
+      setSubmitError(error.message);
+    } finally {
+      setLoadingPurchases(false);
+    }
+  };
 
   useEffect(() => {
     fetchAvailableInvoices();
+    fetchAvailablePurchases();
   }, []);
 
   const selectedInvoiceData = availableInvoices.find(
-    (inv) => String(inv.id) === String(invoiceId),
+    (inv) => String(inv.id) === String(invoiceId)
+  );
+
+  const selectedPurchaseData = availablePurchases.find(
+    (purchase) => String(purchase.id) === String(purchaseId)
   );
 
   const inputClass = `
@@ -116,22 +162,27 @@ const Voucher = () => {
   const errorClass = "mt-1 text-xs text-deem-red";
 
   const requiredMark = <span className="text-deem-red">*</span>;
-
+ 
   const resetForm = () => {
     setVoucherType("");
+
     setInvoiceId("");
+    setPurchaseId("");
+
     setTransactionType("");
     setTransactionDate("");
     setTransactionNumber("");
     setNarration("");
+
     setAmount("");
     setCgst("");
     setSgst("");
     setIgst("");
+
     setErrors({});
     setSubmitError("");
   };
-
+ 
   const renderTransactionFields = () => (
     <>
       <div>
@@ -144,6 +195,7 @@ const Voucher = () => {
           value={transactionType}
           onChange={(e) => {
             const value = e.target.value;
+
             setTransactionType(value);
 
             if (value === "Cash") {
@@ -152,7 +204,11 @@ const Voucher = () => {
               setErrors((prev) => {
                 if (!prev.transactionNumber) return prev;
 
-                const { transactionNumber: _ignored, ...rest } = prev;
+                const {
+                  transactionNumber: _ignored,
+                  ...rest
+                } = prev;
+
                 return rest;
               });
             }
@@ -191,8 +247,8 @@ const Voucher = () => {
           <p className={errorClass}>{errors.transactionDate}</p>
         )}
       </div>
-{/* 
-      <div className="sm:col-span-2">
+
+      <div>
         <label className={labelClass}>
           Transaction Number{" "}
           {transactionType !== "Cash" && requiredMark}
@@ -215,31 +271,7 @@ const Voucher = () => {
         {errors.transactionNumber && (
           <p className={errorClass}>{errors.transactionNumber}</p>
         )}
-      </div> */}
-      <div>
-  <label className={labelClass}>
-    Transaction Number{" "}
-    {transactionType !== "Cash" && requiredMark}
-  </label>
-
-  <input
-    type="text"
-    name="transactionNumber"
-    value={transactionNumber}
-    onChange={(e) => setTransactionNumber(e.target.value)}
-    placeholder="Enter transaction number"
-    disabled={transactionType === "Cash"}
-    className={`${inputClass} ${
-      transactionType === "Cash"
-        ? "bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-        : ""
-    }`}
-  />
-
-  {errors.transactionNumber && (
-    <p className={errorClass}>{errors.transactionNumber}</p>
-  )}
-</div>
+      </div>
 
       <div className="sm:col-span-1">
         <label className={labelClass}>
@@ -261,7 +293,7 @@ const Voucher = () => {
       </div>
     </>
   );
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -271,6 +303,7 @@ const Voucher = () => {
       transactionType,
       transactionNumber,
       invoiceId,
+      purchaseId,
       amount,
       cgst,
       sgst,
@@ -283,51 +316,72 @@ const Voucher = () => {
 
     if (Object.keys(validationErrors).length > 0) return;
 
-    const payload =
-      voucherType === "Sale"
-        ? {
-            voucher_type: "Sale",
-            transaction_number: transactionNumber.trim(),
-            transaction_date: transactionDate,
-            transaction_type: transactionType,
-            invoice_id: Number(invoiceId),
-            amount: Number(amount) || 0,
-            narration: narration.trim() || undefined,
-          }
-        : {
-            voucher_type: "Purchase",
-            transaction_number: transactionNumber.trim(),
-            transaction_date: transactionDate,
-            transaction_type: transactionType,
-            amount: Number(amount) || 0,
-            cgst: Number(cgst) || 0,
-            sgst: Number(sgst) || 0,
-            igst: Number(igst) || 0,
-            narration: narration.trim() || undefined,
-          };
-
     try {
       setSaving(true);
+ 
+      if (voucherType === "Sale") {
+        const payload = {
+          voucher_type: "Sale",
+          transaction_number: transactionNumber.trim(),
+          transaction_date: transactionDate,
+          transaction_type: transactionType,
+          invoice_id: Number(invoiceId),
+          amount: Number(amount) || 0,
+          narration: narration.trim() || undefined,
+        };
 
-      const response = await fetch(VOUCHER_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+        const response = await fetch(VOUCHER_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
 
-      const result = await parseJson(response);
+        const result = await parseJson(response);
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Failed to save voucher");
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.message || "Failed to save voucher"
+          );
+        }
+      }
+  
+      if (voucherType === "Purchase") {
+        const payload = {
+          voucher_type: "Purchase",
+          transaction_number: transactionNumber.trim(),
+          transaction_date: transactionDate,
+          transaction_type: transactionType,
+          purchase_id: Number(purchaseId),
+          narration: narration.trim() || undefined,
+        };
+
+        const response = await fetch(VOUCHER_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await parseJson(response);
+
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.message || "Failed to save purchase voucher"
+          );
+        }
       }
 
       resetForm();
       navigate("/accounts/voucher");
     } catch (error) {
       console.error("Save Voucher Error:", error);
-      setSubmitError(error.message || "Failed to save voucher.");
+
+      setSubmitError(
+        error.message || "Failed to save voucher."
+      );
     } finally {
       setSaving(false);
     }
@@ -336,10 +390,11 @@ const Voucher = () => {
   const showSaveForm =
     voucherType === "Sale"
       ? Boolean(selectedInvoiceData)
-      : voucherType === "Purchase";
+      : Boolean(selectedPurchaseData);
 
   return (
     <div>
+      {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
         <button
           type="button"
@@ -366,6 +421,7 @@ const Voucher = () => {
         </div>
       )}
 
+      {/* Voucher Information */}
       <div className="rounded-2xl bg-white dark:bg-[#161b22] border border-[#e6edf2] dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
           Voucher Information
@@ -381,13 +437,28 @@ const Voucher = () => {
               name="voucherType"
               value={voucherType}
               onChange={(e) => {
-                setVoucherType(e.target.value);
+                const value = e.target.value;
+
+                setVoucherType(value);
+
+                // Sale fields
                 setInvoiceId("");
+
+                // Purchase fields
+                setPurchaseId("");
+
                 setAmount("");
                 setCgst("");
                 setSgst("");
                 setIgst("");
+
+                setTransactionType("");
+                setTransactionDate("");
+                setTransactionNumber("");
+                setNarration("");
+
                 setErrors({});
+                setSubmitError("");
               }}
               className={selectClass}
             >
@@ -401,6 +472,7 @@ const Voucher = () => {
             </select>
           </div>
 
+          {/* SALE SELECTION */}
           {voucherType === "Sale" && (
             <div>
               <label className={labelClass}>
@@ -414,19 +486,16 @@ const Voucher = () => {
                   const selectedId = e.target.value;
 
                   const invoice = availableInvoices.find(
-                    (item) => String(item.id) === String(selectedId),
+                    (item) =>
+                      String(item.id) === String(selectedId)
                   );
-
-                  // if (invoice?.payment_status === "Paid") {
-                  //   setInvoiceId("");
-                  //   setAmount("");
-                  //   return;
-                  // }
 
                   setInvoiceId(selectedId);
 
                   setAmount(
-                    invoice ? String(invoice.grand_total || 0) : "",
+                    invoice
+                      ? String(invoice.grand_total || 0)
+                      : ""
                   );
 
                   setErrors((prev) => {
@@ -450,25 +519,89 @@ const Voucher = () => {
                   <option
                     key={invoice.id}
                     value={invoice.id}
-                    // disabled={invoice.payment_status === "Paid"}
                   >
                     {`${invoice.invoice_number} | ${
                       invoice.customer_name
                     } | ${formatCurrency(
-                      invoice.grand_total,
-                    )} | ${invoice.payment_status || "Pending"}`}
+                      invoice.grand_total
+                    )} | ${
+                      invoice.payment_status || "Pending"
+                    }`}
                   </option>
                 ))}
               </select>
 
               {errors.invoice && (
-                <p className={errorClass}>{errors.invoice}</p>
+                <p className={errorClass}>
+                  {errors.invoice}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* PURCHASE SELECTION */}
+          {voucherType === "Purchase" && (
+            <div>
+              <label className={labelClass}>
+                Purchase {requiredMark}
+              </label>
+
+              <select
+                name="purchaseId"
+                value={purchaseId}
+                onChange={(e) => {
+                  const selectedId = e.target.value;
+
+                  setPurchaseId(selectedId);
+
+                  setErrors((prev) => {
+                    const next = { ...prev };
+
+                    delete next.purchase;
+                    delete next.purchaseId;
+
+                    return next;
+                  });
+                }}
+                className={selectClass}
+              >
+                <option value="">
+                  {loadingPurchases
+                    ? "Loading purchases..."
+                    : "Select Purchase"}
+                </option>
+
+                {availablePurchases.map((purchase) => (
+                  <option
+                    key={purchase.id}
+                    value={purchase.id}
+                  >
+                    {`${purchase.ino} | ${
+                      purchase.cname
+                    } | ${formatCurrency(
+                      purchase.tamount
+                    )}`}
+                  </option>
+                ))}
+              </select>
+
+              {errors.purchase && (
+                <p className={errorClass}>
+                  {errors.purchase}
+                </p>
+              )}
+
+              {errors.purchaseId && (
+                <p className={errorClass}>
+                  {errors.purchaseId}
+                </p>
               )}
             </div>
           )}
         </div>
       </div>
 
+      {/* SALE DETAILS */}
       {voucherType === "Sale" && selectedInvoiceData && (
         <div className="mt-6 rounded-2xl bg-white dark:bg-[#161b22] border border-[#e6edf2] dark:border-gray-700 p-6">
           <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
@@ -482,7 +615,9 @@ const Voucher = () => {
               <input
                 type="text"
                 readOnly
-                value={formatCurrency(selectedInvoiceData.cgst)}
+                value={formatCurrency(
+                  selectedInvoiceData.cgst
+                )}
                 className={readOnlyClass}
               />
             </div>
@@ -493,7 +628,9 @@ const Voucher = () => {
               <input
                 type="text"
                 readOnly
-                value={formatCurrency(selectedInvoiceData.sgst)}
+                value={formatCurrency(
+                  selectedInvoiceData.sgst
+                )}
                 className={readOnlyClass}
               />
             </div>
@@ -504,18 +641,24 @@ const Voucher = () => {
               <input
                 type="text"
                 readOnly
-                value={formatCurrency(selectedInvoiceData.igst)}
+                value={formatCurrency(
+                  selectedInvoiceData.igst
+                )}
                 className={readOnlyClass}
               />
             </div>
 
             <div>
-              <label className={labelClass}>Grand Total</label>
+              <label className={labelClass}>
+                Grand Total
+              </label>
 
               <input
                 type="text"
                 readOnly
-                value={formatCurrency(selectedInvoiceData.grand_total)}
+                value={formatCurrency(
+                  selectedInvoiceData.grand_total
+                )}
                 className={readOnlyClass}
               />
             </div>
@@ -525,7 +668,8 @@ const Voucher = () => {
         </div>
       )}
 
-      {voucherType === "Purchase" && (
+      {/* PURCHASE DETAILS */}
+      {voucherType === "Purchase" && selectedPurchaseData && (
         <div className="mt-6 rounded-2xl bg-white dark:bg-[#161b22] border border-[#e6edf2] dark:border-gray-700 p-6">
           <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
             Purchase Details
@@ -534,80 +678,111 @@ const Voucher = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className={labelClass}>
-                Amount {requiredMark}
+                Company Name
               </label>
 
               <input
-                type="number"
-                min="0"
-                step="0.01"
-                name="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount"
-                className={inputClass}
+                type="text"
+                readOnly
+                value={selectedPurchaseData.cname || ""}
+                className={readOnlyClass}
               />
-
-              {errors.amount && (
-                <p className={errorClass}>{errors.amount}</p>
-              )}
             </div>
 
             <div>
-              <label className={labelClass}>CGST</label>
+              <label className={labelClass}>
+                Invoice Date
+              </label>
 
               <input
-                type="number"
-                min="0"
-                step="0.01"
-                name="cgst"
-                value={cgst}
-                onChange={(e) => setCgst(e.target.value)}
-                placeholder="Enter CGST"
-                className={inputClass}
+                type="text"
+                readOnly
+                value={
+                  selectedPurchaseData.idate
+                    ? String(
+                        selectedPurchaseData.idate
+                      ).slice(0, 10)
+                    : ""
+                }
+                className={readOnlyClass}
               />
-
-              {errors.cgst && (
-                <p className={errorClass}>{errors.cgst}</p>
-              )}
             </div>
 
             <div>
-              <label className={labelClass}>SGST</label>
+              <label className={labelClass}>
+                Invoice Number
+              </label>
 
               <input
-                type="number"
-                min="0"
-                step="0.01"
-                name="sgst"
-                value={sgst}
-                onChange={(e) => setSgst(e.target.value)}
-                placeholder="Enter SGST"
-                className={inputClass}
+                type="text"
+                readOnly
+                value={selectedPurchaseData.ino || ""}
+                className={readOnlyClass}
               />
-
-              {errors.sgst && (
-                <p className={errorClass}>{errors.sgst}</p>
-              )}
             </div>
 
+            {/* CGST */}
             <div>
-              <label className={labelClass}>IGST</label>
+              <label className={labelClass}>
+                CGST
+              </label>
 
               <input
-                type="number"
-                min="0"
-                step="0.01"
-                name="igst"
-                value={igst}
-                onChange={(e) => setIgst(e.target.value)}
-                placeholder="Enter IGST"
-                className={inputClass}
+                type="text"
+                readOnly
+                value={formatCurrency(
+                  selectedPurchaseData.cgst
+                )}
+                className={readOnlyClass}
               />
+            </div>
 
-              {errors.igst && (
-                <p className={errorClass}>{errors.igst}</p>
-              )}
+            {/* SGST */}
+            <div>
+              <label className={labelClass}>
+                SGST
+              </label>
+
+              <input
+                type="text"
+                readOnly
+                value={formatCurrency(
+                  selectedPurchaseData.sgst
+                )}
+                className={readOnlyClass}
+              />
+            </div>
+
+            {/* IGST */}
+            <div>
+              <label className={labelClass}>
+                IGST
+              </label>
+
+              <input
+                type="text"
+                readOnly
+                value={formatCurrency(
+                  selectedPurchaseData.igst
+                )}
+                className={readOnlyClass}
+              />
+            </div>
+
+            {/* Total Amount */}
+            <div>
+              <label className={labelClass}>
+                Total Amount
+              </label>
+
+              <input
+                type="text"
+                readOnly
+                value={formatCurrency(
+                  selectedPurchaseData.tamount
+                )}
+                className={readOnlyClass}
+              />
             </div>
 
             {renderTransactionFields()}
@@ -615,6 +790,7 @@ const Voucher = () => {
         </div>
       )}
 
+      {/* SAVE / CANCEL */}
       {showSaveForm && (
         <form onSubmit={handleSubmit}>
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -641,6 +817,7 @@ const Voucher = () => {
               "
             >
               <Save size={16} />
+
               {saving ? "Saving..." : "Save"}
             </button>
 
@@ -677,4 +854,3 @@ const Voucher = () => {
 };
 
 export default Voucher;
- 

@@ -27,6 +27,12 @@ export const modules = [
     icon: FileText,
     path: "/invoices",
   },
+{
+  title: "Purchase",
+  icon: FileText,
+  path: "/accounts/purchase",
+},
+
     {
     title: "Accounts",
     icon: IndianRupee,

@@ -16,7 +16,7 @@ const getWorkingEmployeesByRole = async (roleId) => {
         LOWER(u.emp_name) = LOWER(e.ename)
       )
     INNER JOIN \`role\` r
-      ON LOWER(u.role) = LOWER(r.display_name)
+      ON LOWER(u.role) = LOWER(r.role)
     WHERE r.id = ?
       AND LOWER(e.wstatus) = 'working'
       AND e.email IS NOT NULL

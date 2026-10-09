@@ -24,16 +24,13 @@ import JoiningCandidates from "./pages/JoiningCandidates";
 import Employees from "./pages/Employees";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { Toaster } from "sonner";
+import Purchases from "./pages/Purchases";
+import AddPurchase from "./pages/AddPurchase";
 
 const App = () => {
   return (
     <BrowserRouter>
-  <Toaster
-    position="top-right"
-    richColors
-    closeButton
-    duration={3000}
-  />
+      <Toaster position="top-right" richColors closeButton duration={3000} />
 
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
@@ -47,51 +44,32 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-
             <Route path="/customers" element={<Customers />} />
-
             <Route path="/announcements" element={<Announcements />} />
-
             <Route path="/announcements/add" element={<AddAnnouncement />} />
-
             <Route path="/notifications" element={<Notifications />} />
-
             <Route path="/notifications/add" element={<AddNotification />} />
-
             <Route path="/customers/add" element={<AddCustomer />} />
-
             <Route path="/customers/:id" element={<CustomerDetails />} />
-
             <Route path="/customers/edit/:id" element={<EditCustomer />} />
-
             <Route path="/payments" element={<Payments />} />
-
             <Route path="/payments/add" element={<AddPayment />} />
-
             <Route path="/invoices" element={<Invoices />} />
-
             <Route path="/invoices/add" element={<AddInvoice />} />
-
             <Route path="/joining-candidates" element={<JoiningCandidates />} />
-
             <Route path="/employees" element={<Employees />} />
-
             <Route path="/students" element={<div>Students</div>} />
-
             <Route path="/users" element={<div>Users</div>} />
-
             <Route path="/teams" element={<div>Teams</div>} />
+            {/* Purchase */}
+            <Route path="/accounts/purchase" element={<Purchases />} />
+            <Route path="/accounts/purchase/add" element={<AddPurchase />} />
 
             <Route path="/accounts/voucher" element={<Vouchers />} />
-
             <Route path="/accounts/voucher/add" element={<AddVoucher />} />
-
             <Route path="/tasks" element={<div>Tasks</div>} />
-
             <Route path="/interview" element={<div>Interview</div>} />
-
             <Route path="/attendance" element={<div>Attendance</div>} />
-
             <Route path="/leave" element={<div>Leave</div>} />
           </Route>
         </Route>
