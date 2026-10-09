@@ -34,6 +34,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch(AUTH_LOGIN_URL, {
@@ -42,6 +44,7 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        signal: controller.signal,
         body: JSON.stringify({
           username: formData.email,
           password: formData.password,
@@ -51,7 +54,11 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok) {
-    toast.error(data.message || "Login failed");
+        toast.error(
+          response.status === 401
+            ? "Invalid username or password"
+            : data.message || "Login failed",
+        );
         return;
       }
 
@@ -80,7 +87,13 @@ if (data.user) {
     toast.error("You are not authorized to access this application.");
     } catch (error) {
       console.error("Login Error:", error);
-     toast.error("Unable to connect to server");
+      toast.error(
+        error.name === "AbortError"
+          ? "Login request timed out. Please check your connection and try again."
+          : "Unable to connect to server",
+      );
+    } finally {
+      window.clearTimeout(timeoutId);
     }
   };
 
