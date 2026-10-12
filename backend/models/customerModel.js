@@ -18,7 +18,7 @@ const createCustomer = async (customerData) => {
         company_name,
         phone,
         email,
-        Balance,
+        balance,
         due_date,
         status
       )
@@ -65,7 +65,7 @@ const getAllCustomers = async () => {
         company_name,
         email,
         phone,
-        Balance,
+        balance,
         due_date,
         status,
         created_at
@@ -87,7 +87,7 @@ const getCustomerById = async (id) => {
         company_name,
         email,
         phone,
-        Balance,
+        balance,
         due_date,
         status,
         created_at
@@ -140,7 +140,7 @@ const updateCustomerPayment = async (id, payment, dueDate) => {
     `
       UPDATE customers
       SET
-        Balance = ?,
+        balance = ?,
         due_date = ?
       WHERE id = ?
     `,

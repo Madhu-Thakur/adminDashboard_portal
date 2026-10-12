@@ -28,8 +28,5 @@
     "proxy-addr": "^2.0.8",
     "resend": "^6.30.0",
     "swagger-ui-express": "^5.0.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.14"
   }
 }

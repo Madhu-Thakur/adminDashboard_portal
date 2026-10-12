@@ -93,7 +93,7 @@ const createVoucher = async (voucherData) => {
         `
           SELECT
             id,
-            Balance
+            balance
           FROM customers
           WHERE id = ?
           LIMIT 1
@@ -106,7 +106,7 @@ const createVoucher = async (voucherData) => {
       }
 
       const currentBalance =
-        Number(customerRows[0].Balance) || 0;
+        Number(customerRows[0].balance) || 0;
 
       if (finalAmount > currentBalance) {
         throw new Error(
@@ -155,7 +155,7 @@ const createVoucher = async (voucherData) => {
       await connection.execute(
         `
           UPDATE customers
-          SET Balance = ?
+          SET balance = ?
           WHERE id = ?
         `,
         [newBalance, finalCustomerId],
@@ -276,10 +276,7 @@ const createVoucher = async (voucherData) => {
     connection.release();
   }
 };
-
-// =========================
-// GET ALL VOUCHERS
-// =========================
+ 
 const getAllVouchers = async ({
   voucherType = "",
   startDate = "",
@@ -353,10 +350,7 @@ const getAllVouchers = async ({
 
   return rows;
 };
-
-// =========================
-// GET AVAILABLE SALE INVOICES
-// =========================
+ 
 const getAvailableSaleInvoices = async () => {
   const [rows] = await db.execute(
     `
@@ -384,10 +378,7 @@ const getAvailableSaleInvoices = async () => {
 
   return rows;
 };
-
-// =========================
-// GET AVAILABLE PURCHASES
-// =========================
+ 
 const getAvailablePurchases = async () => {
   const [rows] = await db.execute(
     `

@@ -40,6 +40,8 @@ const contactRoutes = require("./routes/contactRoutes");
 
 const indentRoutes = require("./routes/indentRoutes");
 
+const salePurchaseReportRoutes = require("./routes/salePurchaseReportRoutes");
+
 const app = express();
 
 app.use(
@@ -94,6 +96,8 @@ app.use("/api", indentRoutes);
 app.use("/api", careerRoutes);
 app.use("/api", trainingRoutes);
 app.use("/api", contactRoutes);
+
+app.use("/api/sale-purchase-report", salePurchaseReportRoutes);
 
 app.get("/", (req, res) => {
   res.json({
