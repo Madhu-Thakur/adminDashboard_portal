@@ -119,7 +119,7 @@ const EditCustomer = () => {
   const handlePaymentSuccess = ({ payment, due_date }) => {
     setCustomerData((prev) => ({
       ...prev,
-      Balance: payment.toFixed(2),
+      balance: payment.toFixed(2),
       due_date,
     }));
 

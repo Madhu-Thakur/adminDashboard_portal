@@ -302,12 +302,12 @@ const Customers = () => {
 
                     <td
                       className={`px-5 py-4 text-right font-medium ${
-                        Number(customer.Balance || 0) > 0
+                        Number(customer.balance || 0) > 0
                           ? "text-deem-red"
                           : "text-green-600"
                       }`}
                     >
-                      {formatCurrency(customer.Balance)}
+                      {formatCurrency(customer.balance)}
                     </td>
 
                     <td className="px-5 py-4">

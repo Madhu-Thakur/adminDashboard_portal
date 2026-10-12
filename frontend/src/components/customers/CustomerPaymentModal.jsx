@@ -15,7 +15,7 @@ const CustomerPaymentModal = ({
   useEffect(() => {
     if (!isOpen || !customer) return;
 
-    setPayment(customer.Balance ?? "");
+    setPayment(customer.balance ?? "");
     setDueDate(
       customer.due_date
         ? String(customer.due_date).slice(0, 10)

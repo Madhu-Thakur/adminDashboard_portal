@@ -34,10 +34,15 @@ export const modules = [
 },
 
     {
-    title: "Accounts",
+    title: "Vouchers",
     icon: IndianRupee,
     path: "/accounts/voucher",
   },
+  {
+  title: "Balance Report",
+  icon: IndianRupee,
+  path: "/accounts/sale-purchase-report",
+},
      {
     title: "Announcement",
     icon: Megaphone,

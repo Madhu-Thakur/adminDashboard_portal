@@ -24,6 +24,7 @@ export const ANNOUNCEMENT_API_URL = `${API_BASE_URL}/api/announcements`;
 export const JOINING_CANDIDATE_API_URL = `${API_BASE_URL}/api/joining-candidates`;
 export const DESIGNATION_API_URL = `${API_BASE_URL}/api/designations`;
 export const EMPLOYEE_API_URL = `${API_BASE_URL}/api/employees`;
+export const SALE_PURCHASE_REPORT_API_URL = `${API_BASE_URL}/api/sale-purchase-report`;
 
 export async function parseJson(response) {
   const contentType = (

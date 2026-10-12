@@ -26,6 +26,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import { Toaster } from "sonner";
 import Purchases from "./pages/Purchases";
 import AddPurchase from "./pages/AddPurchase";
+import SalePurchaseReport from "./pages/SalePurchaseReport";
 
 const App = () => {
   return (
@@ -62,6 +63,12 @@ const App = () => {
             <Route path="/users" element={<div>Users</div>} />
             <Route path="/teams" element={<div>Teams</div>} />
             {/* Purchase */}
+
+             <Route
+              path="/accounts/sale-purchase-report"
+              element={<SalePurchaseReport />}
+            /> 
+
             <Route path="/accounts/purchase" element={<Purchases />} />
             <Route path="/accounts/purchase/add" element={<AddPurchase />} />
 
