@@ -27,8 +27,11 @@ const SalePurchaseReport = () => {
 
   const [report, setReport] = useState({
     totalSale: 0,
+    saleGST: 0,
     totalPurchase: 0,
+    purchaseGST: 0,
     difference: 0,
+    gstDifference: 0,
   });
 
   const [loading, setLoading] = useState(false);
@@ -58,8 +61,11 @@ const SalePurchaseReport = () => {
 
       setReport({
         totalSale: Number(result.data?.totalSale) || 0,
+        saleGST: Number(result.data?.saleGST) || 0,
         totalPurchase: Number(result.data?.totalPurchase) || 0,
+        purchaseGST: Number(result.data?.purchaseGST) || 0,
         difference: Number(result.data?.difference) || 0,
+        gstDifference: Number(result.data?.gstDifference) || 0,
       });
     } catch (err) {
       console.error("Sale & Purchase Report Error:", err);
@@ -77,6 +83,8 @@ const SalePurchaseReport = () => {
     {
       title: "Total Sale",
       amount: report.totalSale,
+      gstLabel: "Sale GST",
+      gstAmount: report.saleGST,
       icon: TrendingUp,
       iconStyle:
         "bg-blue-50 text-deem-blue dark:bg-blue-950/40 dark:text-blue-300",
@@ -84,6 +92,8 @@ const SalePurchaseReport = () => {
     {
       title: "Total Purchase",
       amount: report.totalPurchase,
+      gstLabel: "Purchase GST",
+      gstAmount: report.purchaseGST,
       icon: TrendingDown,
       iconStyle:
         "bg-red-50 text-deem-red dark:bg-red-950/30 dark:text-red-300",
@@ -91,6 +101,8 @@ const SalePurchaseReport = () => {
     {
       title: "Sale - Purchase Difference",
       amount: report.difference,
+      gstLabel: "GST Difference",
+      gstAmount: report.gstDifference,
       icon: Scale,
       iconStyle:
         "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300",
@@ -233,9 +245,21 @@ const SalePurchaseReport = () => {
                   </div>
                 </div>
 
+                {/* Main Amount */}
                 <p className="mt-5 break-words text-2xl font-bold text-gray-800 dark:text-white">
                   {formatCurrency(card.amount)}
                 </p>
+
+                {/* GST Breakdown */}
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-gray-100 pt-3 dark:border-gray-700">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {card.gstLabel}
+                  </span>
+
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    {formatCurrency(card.gstAmount)}
+                  </span>
+                </div>
 
                 <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
                   Selected month and year
@@ -245,11 +269,13 @@ const SalePurchaseReport = () => {
           })}
         </div>
       ) : null}
-{/* 
+
+      {/* Difference Note */}
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        Note: Difference is Total Sale minus Total Purchase. It does not
-        represent net profit because expenses are not included.
-      </p> */}
+        Note: GST Difference is Sale GST minus Purchase GST. It is not
+        necessarily the final GST payable. Sale - Purchase Difference
+        excludes additional expenses.
+      </p>
     </div>
   );
 };
