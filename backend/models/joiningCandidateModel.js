@@ -1,6 +1,5 @@
- const db = require("../config/db");
-
-// Create Joining Candidate
+const db = require("../config/db");
+ 
 const createJoiningCandidate = async (candidateData) => {
   const {
     ename,
@@ -22,7 +21,6 @@ const createJoiningCandidate = async (candidateData) => {
     aadharc,
     sslip,
     passbook,
-    status,
     last_update,
   } = candidateData;
 
@@ -67,28 +65,22 @@ const createJoiningCandidate = async (candidateData) => {
       qual || null,
       hstudy || null,
       linkedin || null,
-
-      // Cloudinary URLs
       photo ?? "",
       resume ?? "",
       degree ?? "",
- 
       pexp ?? "",
-
       aadharc ?? "",
       sslip ?? "",
       passbook ?? "",
-
-      Number(status ?? 0),
- 
-      last_update || new Date().toISOString().slice(0, 19).replace("T", " "),
+      0, // New candidate always starts as Pending
+      last_update ||
+        new Date().toISOString().slice(0, 19).replace("T", " "),
     ],
   );
 
   return result.insertId;
 };
 
-// Get All Joining Candidates
 const getAllJoiningCandidates = async () => {
   const [rows] = await db.execute(
     `
@@ -158,8 +150,7 @@ const getJoiningCandidateById = async (id) => {
 
   return rows[0];
 };
-
-// Update Joining Candidate
+ 
 const updateJoiningCandidate = async (id, candidateData) => {
   const {
     ename,
@@ -181,7 +172,6 @@ const updateJoiningCandidate = async (id, candidateData) => {
     aadharc,
     sslip,
     passbook,
-    status,
   } = candidateData;
 
   const [result] = await db.execute(
@@ -206,8 +196,7 @@ const updateJoiningCandidate = async (id, candidateData) => {
         pexp = ?,
         aadharc = ?,
         sslip = ?,
-        passbook = ?,
-        status = ?
+        passbook = ?
       WHERE id = ?
     `,
     [
@@ -230,7 +219,6 @@ const updateJoiningCandidate = async (id, candidateData) => {
       aadharc ?? "",
       sslip ?? "",
       passbook ?? "",
-      Number(status ?? 0),
       id,
     ],
   );
@@ -251,6 +239,67 @@ const deleteJoiningCandidate = async (id) => {
   return result;
 };
 
+// Reject Joining Candidate
+const rejectJoiningCandidate = async (id) => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    // Lock candidate row to prevent conflicting status changes
+    const [rows] = await connection.execute(
+      `
+        SELECT id, status
+        FROM join_candidate
+        WHERE id = ?
+        LIMIT 1
+        FOR UPDATE
+      `,
+      [id],
+    );
+
+    if (rows.length === 0) {
+      throw new Error("Joining candidate not found");
+    }
+
+    const status = Number(rows[0].status);
+
+    if (status === 1) {
+      throw new Error("Candidate is already an employee");
+    }
+
+    if (status === 2) {
+      throw new Error("Candidate has already been rejected");
+    }
+
+    if (status !== 0) {
+      throw new Error("Candidate status is invalid");
+    }
+
+    const [result] = await connection.execute(
+      `
+        UPDATE join_candidate
+        SET status = 2
+        WHERE id = ? AND status = 0
+      `,
+      [id],
+    );
+
+    if (result.affectedRows !== 1) {
+      throw new Error("Candidate status could not be updated");
+    }
+
+    await connection.commit();
+
+    return true;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
 // Save Joining Candidate as Employee
 const saveCandidateAsEmployee = async (id, designationId) => {
   const connection = await db.getConnection();
@@ -258,7 +307,7 @@ const saveCandidateAsEmployee = async (id, designationId) => {
   try {
     await connection.beginTransaction();
 
-    // 1. Get joining candidate
+    // 1. Get and lock joining candidate
     const [candidateRows] = await connection.execute(
       `
         SELECT
@@ -281,8 +330,9 @@ const saveCandidateAsEmployee = async (id, designationId) => {
         FROM join_candidate
         WHERE id = ?
         LIMIT 1
+        FOR UPDATE
       `,
-      [id]
+      [id],
     );
 
     if (candidateRows.length === 0) {
@@ -290,10 +340,21 @@ const saveCandidateAsEmployee = async (id, designationId) => {
     }
 
     const candidate = candidateRows[0];
+    const status = Number(candidate.status);
 
-    // 2. Check candidate is not already converted
-    if (Number(candidate.status) === 1) {
+    // 2. Only Pending candidates can become employees
+    if (status === 1) {
       throw new Error("Candidate is already an employee");
+    }
+
+    if (status === 2) {
+      throw new Error(
+        "Candidate has been rejected and cannot be converted to an employee",
+      );
+    }
+
+    if (status !== 0) {
+      throw new Error("Candidate status is invalid for employee conversion");
     }
 
     // 3. Check designation
@@ -304,7 +365,7 @@ const saveCandidateAsEmployee = async (id, designationId) => {
         WHERE id = ?
         LIMIT 1
       `,
-      [designationId]
+      [designationId],
     );
 
     if (designationRows.length === 0) {
@@ -385,7 +446,7 @@ const saveCandidateAsEmployee = async (id, designationId) => {
           '',
           ?, ?, ?, ?, ?, '',
           CURDATE(),
-          '', '', '', '', '', '', 
+          '', '', '', '', '', '',
           0, 0, 0, 0, 0, 0, 0,
           ?,
           0, 0, 0, 0,
@@ -415,24 +476,27 @@ const saveCandidateAsEmployee = async (id, designationId) => {
         candidate.pexp || "",
         candidate.photo || "",
         new Date().toISOString().slice(0, 19).replace("T", " "),
-      ]
+      ],
     );
 
-    // 5. Update joining candidate status
-    await connection.execute(
+    // 5. Update status only if candidate is still Pending
+    const [statusUpdate] = await connection.execute(
       `
         UPDATE join_candidate
         SET status = 1
-        WHERE id = ?
+        WHERE id = ? AND status = 0
       `,
-      [id]
+      [id],
     );
 
-    // 6. Commit transaction
+    if (statusUpdate.affectedRows !== 1) {
+      throw new Error("Candidate status could not be updated");
+    }
+
+    // 6. Commit both employee creation and status update
     await connection.commit();
 
     return employeeResult.insertId;
-
   } catch (error) {
     await connection.rollback();
     throw error;
@@ -447,5 +511,6 @@ module.exports = {
   getJoiningCandidateById,
   updateJoiningCandidate,
   deleteJoiningCandidate,
+  rejectJoiningCandidate,
   saveCandidateAsEmployee,
 };

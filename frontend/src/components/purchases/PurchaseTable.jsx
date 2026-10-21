@@ -1,4 +1,5 @@
 import { FileText, Paperclip } from "lucide-react";
+import {useState} from "react";
 
 const formatDate = (date) => {
   if (!date) return "-";
@@ -19,9 +20,19 @@ const formatCurrency = (value) => {
 };
 
 const PurchaseTable = ({ purchases = [] }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
+
+  const totalPages = Math.ceil(purchases.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const currentPurchases = purchases.slice(
+    startIndex,
+    startIndex + recordsPerPage
+  );
+
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[1050px]">
+      <table className="w-full min-w-262.5">
         <thead>
           <tr className="border-b border-gray-200 dark:border-gray-700">
             <th className="px-5 py-4 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -82,7 +93,7 @@ const PurchaseTable = ({ purchases = [] }) => {
               </td>
             </tr>
           ) : (
-            purchases.map((purchase) => (
+          currentPurchases.map((purchase) => (
               <tr
                 key={purchase.id}
                 className="border-b border-gray-100 last:border-0 hover:bg-gray-50/70 dark:border-gray-800 dark:hover:bg-gray-800/30"
@@ -136,7 +147,47 @@ const PurchaseTable = ({ purchases = [] }) => {
             ))
           )}
         </tbody>
-      </table>
+           </table>
+
+      {purchases.length > 0 && (
+        <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Showing {startIndex + 1}–
+            {Math.min(startIndex + recordsPerPage, purchases.length)} of{" "}
+            {purchases.length} records
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage((page) => Math.max(page - 1, 1))
+              }
+              disabled={currentPage === 1}
+              className="rounded-lg border border-gray-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700"
+            >
+              Previous
+            </button>
+
+            <span className="px-2 text-sm text-gray-600 dark:text-gray-300">
+              Page {currentPage} of {Math.max(totalPages, 1)}
+            </span>
+
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage((page) =>
+                  Math.min(page + 1, totalPages)
+                )
+              }
+              disabled={currentPage >= totalPages}
+              className="rounded-lg border border-gray-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

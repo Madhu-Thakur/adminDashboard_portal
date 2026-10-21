@@ -14,6 +14,18 @@ const AnnouncementTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
+
+  const totalPages = Math.ceil(announcements.length / recordsPerPage);
+
+  const startIndex = (currentPage - 1) * recordsPerPage;
+
+  const currentAnnouncements = announcements.slice(
+    startIndex,
+    startIndex + recordsPerPage,
+  );
+
   // Fetch announcements
   const fetchAnnouncements = async () => {
     try {
@@ -24,9 +36,7 @@ const AnnouncementTable = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message || "Failed to fetch announcements",
-        );
+        throw new Error(result.message || "Failed to fetch announcements");
       }
 
       setAnnouncements(result.data || []);
@@ -62,6 +72,12 @@ const AnnouncementTable = () => {
     fetchRoles();
   }, []);
 
+  useEffect(() => {
+    if (currentPage > Math.max(totalPages, 1)) {
+      setCurrentPage(Math.max(totalPages, 1));
+    }
+  }, [currentPage, totalPages]);
+
   // Convert role IDs into role names
   const getRoleNames = (roleValue) => {
     if (!roleValue) return "-";
@@ -73,9 +89,7 @@ const AnnouncementTable = () => {
 
     return roleIds
       .map((id) => {
-        const role = roles.find(
-          (item) => String(item.id) === String(id),
-        );
+        const role = roles.find((item) => String(item.id) === String(id));
 
         return role?.role || id;
       })
@@ -96,25 +110,18 @@ const AnnouncementTable = () => {
     }
 
     try {
-      const response = await fetch(
-        `${ANNOUNCEMENT_API_URL}/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
+      const response = await fetch(`${ANNOUNCEMENT_API_URL}/${id}`, {
+        method: "DELETE",
+      });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message || "Failed to delete announcement",
-        );
+        throw new Error(result.message || "Failed to delete announcement");
       }
 
       setAnnouncements((prev) =>
-        prev.filter(
-          (announcement) => announcement.id !== id,
-        ),
+        prev.filter((announcement) => announcement.id !== id),
       );
     } catch (error) {
       console.error("Delete Announcement Error:", error);
@@ -194,7 +201,7 @@ const AnnouncementTable = () => {
           </thead>
 
           <tbody>
-            {announcements.map((announcement) => (
+            {currentAnnouncements.map((announcement) => (
               <tr
                 key={announcement.id}
                 className="border-b border-gray-100 transition hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/30"
@@ -210,8 +217,7 @@ const AnnouncementTable = () => {
                 <td className="px-5 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
                   <span
                     className={
-                      String(announcement.type).toLowerCase() ===
-                      "alert"
+                      String(announcement.type).toLowerCase() === "alert"
                         ? "font-medium text-deem-red"
                         : "font-medium text-green-600"
                     }
@@ -251,9 +257,7 @@ const AnnouncementTable = () => {
                         : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                     }`}
                   >
-                    {Number(announcement.status) === 1
-                      ? "Active"
-                      : "Inactive"}
+                    {Number(announcement.status) === 1 ? "Active" : "Inactive"}
                   </span>
                 </td>
 
@@ -287,9 +291,7 @@ const AnnouncementTable = () => {
 
                     <button
                       type="button"
-                      onClick={() =>
-                        handleDelete(announcement.id)
-                      }
+                      onClick={() => handleDelete(announcement.id)}
                       title="Delete Announcement"
                       className="
                         flex
@@ -317,6 +319,55 @@ const AnnouncementTable = () => {
             ))}
           </tbody>
         </table>
+
+        {announcements.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 px-4 py-4">
+            <p className="text-sm text-gray-600">
+              Showing {startIndex + 1} to{" "}
+              {Math.min(startIndex + recordsPerPage, announcements.length)} of{" "}
+              {announcements.length} announcements
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+              >
+                Previous
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    className={`rounded-lg border px-3 py-2 text-sm ${
+                      currentPage === page
+                        ? "border-deem-blue bg-deem-blue text-white"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(page + 1, totalPages))
+                }
+                disabled={currentPage >= totalPages}
+                className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

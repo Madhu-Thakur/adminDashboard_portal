@@ -39,12 +39,14 @@ router.post(
 // Our GET APIs
 router.get("/joining-candidates", getJoiningCandidates);
 router.get("/joining-candidates/:id", getJoiningCandidate);
+
 // Save Joining Candidate as Employee
 router.post(
   "/joining-candidates/:id/save-as-employee",
   convertCandidateToEmployee
 ); 
  
+
 router.put(
   "/joining-candidates/:id",
   joiningCandidateUpload,
@@ -54,3 +56,5 @@ router.put(
 router.delete("/joining-candidates/:id", removeJoiningCandidate);
 
 module.exports = router;
+
+  

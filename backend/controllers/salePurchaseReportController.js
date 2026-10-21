@@ -64,6 +64,14 @@ const fetchSalePurchaseReport = async (req, res) => {
         purchaseGST: report.purchaseGST,
         difference: report.difference,
         gstDifference: report.gstDifference,
+        saleCGST: report.saleCGST,
+        saleSGST: report.saleSGST,
+        saleIGST: report.saleIGST,
+        purchaseCGST: report.purchaseCGST,
+        purchaseSGST: report.purchaseSGST,
+        purchaseIGST: report.purchaseIGST,
+        saleCount: report.saleCount,
+        purchaseCount: report.purchaseCount,
       },
     });
   } catch (error) {

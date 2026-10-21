@@ -1,31 +1,8 @@
-const {
+ const {
   createPurchase,
   getAllPurchases,
   getPurchaseById,
 } = require("../models/purchaseModel");
-
-const cloudinary = require("cloudinary").v2;
-
-const uploadToCloudinary = (fileBuffer) => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "deem/test/purchase/invoice",
-        resource_type: "auto",
-      },
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
-
-    stream.end(fileBuffer);
-  });
-};
-
 const addPurchase = async (req, res) => {
   try {
     const {
@@ -59,17 +36,7 @@ const addPurchase = async (req, res) => {
       });
     }
 
-    if (
-      gstAmount === undefined ||
-      gstAmount === null ||
-      gstAmount === ""
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "GST Amount is required",
-      });
-    }
-
+    // Total Amount is still required
     if (
       tamount === undefined ||
       tamount === null ||
@@ -80,51 +47,59 @@ const addPurchase = async (req, res) => {
         message: "Total Amount is required",
       });
     }
- 
-    if (!["state", "other"].includes(gstType)) {
-      return res.status(400).json({
-        success: false,
-        message: "GST Type must be either state or other",
-      });
-    }
- 
-    const totalGst = Number(gstAmount);
+
+    // Blank GST Amount defaults to zero
+    const totalGst =
+      gstAmount === undefined ||
+      gstAmount === null ||
+      String(gstAmount).trim() === ""
+        ? 0
+        : Number(gstAmount);
+
     const totalAmount = Number(tamount);
 
-    if (Number.isNaN(totalGst) || totalGst < 0) {
+    if (!Number.isFinite(totalGst) || totalGst < 0) {
       return res.status(400).json({
         success: false,
         message: "GST Amount must be a valid non-negative number",
       });
     }
 
-    if (Number.isNaN(totalAmount) || totalAmount < 0) {
+    if (!Number.isFinite(totalAmount) || totalAmount < 0) {
       return res.status(400).json({
         success: false,
         message: "Total Amount must be a valid non-negative number",
       });
     }
- 
+
+    // GST Type is required only when GST Amount is greater than zero
+    if (totalGst > 0 && !["state", "other"].includes(gstType)) {
+      return res.status(400).json({
+        success: false,
+        message: "GST Type must be either state or other when GST is entered",
+      });
+    }
+
     let cgst = 0;
     let sgst = 0;
     let igst = 0;
 
-    if (gstType === "state") {
+    if (totalGst > 0 && gstType === "state") {
       cgst = Number((totalGst / 2).toFixed(2));
       sgst = Number((totalGst - cgst).toFixed(2));
     }
 
-    if (gstType === "other") {
+    if (totalGst > 0 && gstType === "other") {
       igst = Number(totalGst.toFixed(2));
     }
- 
+
     let fileUrl = null;
 
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
       fileUrl = result.secure_url;
     }
- 
+
     const purchaseId = await createPurchase({
       cname: String(cname).trim(),
       idate,
@@ -143,7 +118,7 @@ const addPurchase = async (req, res) => {
       purchaseId,
       file: fileUrl,
       gst: {
-        type: gstType,
+        type: totalGst > 0 ? gstType : null,
         cgst,
         sgst,
         igst,
@@ -160,6 +135,7 @@ const addPurchase = async (req, res) => {
   }
 };
 
+ 
 const getPurchases = async (req, res) => {
   try {
     const purchases = await getAllPurchases();
@@ -213,6 +189,7 @@ const getPurchase = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   addPurchase,

@@ -67,8 +67,7 @@ const ProtectedRoute = () => {
   if (authState === "unauthenticated") {
     return <Navigate to="/login" replace />;
   }
-
-  // Staff cannot access the DEEM Web application
+ 
 if (isStaff) {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-[#e2e6ea] px-4">

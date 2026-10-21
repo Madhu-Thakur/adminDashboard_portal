@@ -21,6 +21,8 @@ import AddAnnouncement from "./pages/AddAnnouncement";
 import Notifications from "./pages/Notifications";
 import AddNotification from "./pages/AddNotification";
 import JoiningCandidates from "./pages/JoiningCandidates";
+import EditJoiningCandidate from "./pages/EditJoiningCandidate"; 
+import JoiningCandidateDocuments from "./pages/JoiningCandidateDocuments"; 
 import Employees from "./pages/Employees";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { Toaster } from "sonner";
@@ -58,16 +60,22 @@ const App = () => {
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/invoices/add" element={<AddInvoice />} />
             <Route path="/joining-candidates" element={<JoiningCandidates />} />
+            <Route
+              path="/joining-candidates/edit/:id"
+              element={<EditJoiningCandidate />}
+            />
+            <Route
+              path="/joining-candidates/documents/:id"
+              element={<JoiningCandidateDocuments />}
+            />
             <Route path="/employees" element={<Employees />} />
             <Route path="/students" element={<div>Students</div>} />
             <Route path="/users" element={<div>Users</div>} />
             <Route path="/teams" element={<div>Teams</div>} />
-            {/* Purchase */}
-
-             <Route
+            <Route
               path="/accounts/sale-purchase-report"
               element={<SalePurchaseReport />}
-            /> 
+            />
 
             <Route path="/accounts/purchase" element={<Purchases />} />
             <Route path="/accounts/purchase/add" element={<AddPurchase />} />

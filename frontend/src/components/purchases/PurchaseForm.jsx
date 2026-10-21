@@ -148,18 +148,17 @@ const PurchaseForm = ({
       nextErrors.ino = "Invoice number is required";
     }
 
-    if (!formData.gstType) {
-      nextErrors.gstType = "Please select GST type";
-    }
+    const gstAmount =
+      formData.gstAmount === "" ? 0 : Number(formData.gstAmount);
 
-    if (formData.gstAmount === "") {
-      nextErrors.gstAmount = "GST amount is required";
-    } else if (
-      Number.isNaN(Number(formData.gstAmount)) ||
-      Number(formData.gstAmount) < 0
+    if (
+      !Number.isFinite(gstAmount) ||
+      gstAmount < 0
     ) {
       nextErrors.gstAmount =
         "GST amount must be a valid non-negative number";
+    } else if (gstAmount > 0 && !formData.gstType) {
+      nextErrors.gstType = "Please select GST type when GST is added";
     }
 
     if (formData.tamount === "") {
@@ -179,7 +178,7 @@ const PurchaseForm = ({
 
     onSubmit({
       ...formData,
-      gstAmount: Number(formData.gstAmount),
+      gstAmount: formData.gstAmount === "" ? 0 : Number(formData.gstAmount),
       tamount: Number(formData.tamount),
     });
   };
@@ -272,8 +271,7 @@ const PurchaseForm = ({
             {/* GST Type */}
             <div>
               <label className={labelClass}>
-                GST Type{" "}
-                <span className="text-deem-red">*</span>
+                GST Type <span className="text-gray-400">(Optional)</span>
               </label>
 
               <div
@@ -292,7 +290,7 @@ const PurchaseForm = ({
                     onChange={() =>
                       handleGstTypeChange("state")
                     }
-                    className="h-4 w-4 accent-[#144667]"
+                    className="h-4 w-4 accent-deem-blue"
                   />
 
                   <span>State</span>
@@ -307,7 +305,7 @@ const PurchaseForm = ({
                     onChange={() =>
                       handleGstTypeChange("other")
                     }
-                    className="h-4 w-4 accent-[#144667]"
+                    className="h-4 w-4 accent-deem-blue"
                   />
 
                   <span>Other State</span>
@@ -323,11 +321,10 @@ const PurchaseForm = ({
           </div>
 
           <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-            {/* GST Amount */}
+      
             <div>
               <label className={labelClass}>
-                GST Amount{" "}
-                <span className="text-deem-red">*</span>
+                GST Amount <span className="text-gray-400">(Optional)</span>
               </label>
 
               <div className="relative">
@@ -357,8 +354,7 @@ const PurchaseForm = ({
                 </p>
               )}
             </div>
-
-            {/* Total Amount */}
+ 
             <div>
               <label className={labelClass}>
                 Total Amount{" "}
@@ -394,8 +390,7 @@ const PurchaseForm = ({
             </div>
           </div>
         </section>
-
-        {/* File Attachment */}
+ 
         <section>
           <label className={labelClass}>
             File Attachment
@@ -435,8 +430,7 @@ const PurchaseForm = ({
           </div>
         </section>
       </fieldset>
-
-      {/* Buttons */}
+ 
       <div className="flex flex-wrap items-center gap-3 pt-2">
         {!isViewMode && (
           <button

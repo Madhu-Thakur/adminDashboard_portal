@@ -15,7 +15,6 @@ const Purchases = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-7 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold text-deem-blue dark:text-white">
@@ -50,15 +49,13 @@ const Purchases = () => {
           Add Purchase
         </button>
       </div>
-
-      {/* Error */}
+ 
       {error && (
         <div className="mb-5 rounded-xl border border-deem-red/20 bg-red-50 px-4 py-3 text-sm text-deem-red">
           {error}
         </div>
       )}
 
-      {/* Table */}
       <div className="overflow-hidden rounded-2xl border border-[#e6edf2] bg-white dark:border-gray-700 dark:bg-[#161b22]">
         {loading ? (
           <div className="px-5 py-12 text-center text-sm text-gray-500 dark:text-gray-400">

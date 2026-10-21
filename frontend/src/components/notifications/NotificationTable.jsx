@@ -12,6 +12,18 @@ const NotificationTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
+
+  const totalPages = Math.ceil(notifications.length / recordsPerPage);
+
+  const startIndex = (currentPage - 1) * recordsPerPage;
+
+  const currentNotifications = notifications.slice(
+    startIndex,
+    startIndex + recordsPerPage,
+  );
+
   // Fetch notifications
   const fetchNotifications = async () => {
     try {
@@ -58,6 +70,12 @@ const NotificationTable = () => {
     fetchRoles();
   }, []);
 
+  useEffect(() => {
+    if (currentPage > Math.max(totalPages, 1)) {
+      setCurrentPage(Math.max(totalPages, 1));
+    }
+  }, [currentPage, totalPages]);
+
   // Convert role IDs into role names
   const getRoleNames = (roleValue) => {
     if (!roleValue) return "-";
@@ -69,9 +87,7 @@ const NotificationTable = () => {
 
     return roleIds
       .map((id) => {
-        const role = roles.find(
-          (item) => String(item.id) === String(id)
-        );
+        const role = roles.find((item) => String(item.id) === String(id));
 
         return role?.role || id;
       })
@@ -80,25 +96,22 @@ const NotificationTable = () => {
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this notification?"
+      "Are you sure you want to delete this notification?",
     );
 
     if (!confirmed) return;
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/notifications/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/notifications/${id}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete notification");
       }
 
       setNotifications((prev) =>
-        prev.filter((notification) => notification.id !== id)
+        prev.filter((notification) => notification.id !== id),
       );
     } catch (err) {
       setError(err.message || "Failed to delete notification");
@@ -165,7 +178,7 @@ const NotificationTable = () => {
         </thead>
 
         <tbody className="divide-y divide-gray-100 dark:divide-white/10">
-          {notifications.map((notification) => (
+          {currentNotifications.map((notification) => (
             <tr
               key={notification.id}
               className="transition hover:bg-gray-50 dark:hover:bg-white/5"
@@ -183,11 +196,11 @@ const NotificationTable = () => {
                 />
               </td>
 
-             <td className="px-4 py-4">
-  <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-deem-red dark:bg-red-950/30 dark:text-red-400">
-    {getRoleNames(notification.role)}
-  </span>
-</td>
+              <td className="px-4 py-4">
+                <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-deem-red dark:bg-red-950/30 dark:text-red-400">
+                  {getRoleNames(notification.role)}
+                </span>
+              </td>
 
               <td className="px-4 py-4">
                 <span
@@ -226,6 +239,55 @@ const NotificationTable = () => {
           ))}
         </tbody>
       </table>
+
+      {notifications.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 px-4 py-4">
+          <p className="text-sm text-gray-600">
+            Showing {startIndex + 1} to{" "}
+            {Math.min(startIndex + recordsPerPage, notifications.length)} of{" "}
+            {notifications.length} notifications
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+              disabled={currentPage === 1}
+              className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCurrentPage(page)}
+                  className={`rounded-lg border px-3 py-2 text-sm ${
+                    currentPage === page
+                      ? "border-deem-blue bg-deem-blue text-white"
+                      : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ),
+            )}
+
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage((page) => Math.min(page + 1, totalPages))
+              }
+              disabled={currentPage >= totalPages}
+              className="rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

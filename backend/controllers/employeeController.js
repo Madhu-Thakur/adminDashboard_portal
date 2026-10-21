@@ -1,12 +1,14 @@
 const db = require("../config/db");
- 
+
 exports.getEmployees = async (req, res) => {
   try {
-   const [rows] = await db.query(`
+    const [rows] = await db.query(`
   SELECT
     e.eid,
     e.ename,
     e.fname,
+    e.mobile, 
+    e.email,
     e.file,
     e.last_update,
     d.des AS designation
@@ -19,7 +21,6 @@ exports.getEmployees = async (req, res) => {
       success: true,
       employees: rows,
     });
-
   } catch (err) {
     console.error("GET EMPLOYEES ERROR:", err);
 

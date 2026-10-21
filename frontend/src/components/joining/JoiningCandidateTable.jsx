@@ -1,4 +1,4 @@
-﻿ import {
+﻿import {
   Search,
   ChevronLeft,
   ChevronRight,
@@ -6,13 +6,11 @@
   UserRoundPlus,
   Pencil,
   FileText,
-  ClipboardCheck,
-  Phone,
-  Mail,
-  CalendarDays,
   UserRound,
+ 
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   JOINING_CANDIDATE_API_URL,
   DESIGNATION_API_URL,
@@ -22,6 +20,8 @@ import {
 const PAGE_SIZE = 8;
 
 const JoiningCandidateTable = () => {
+  const navigate = useNavigate();
+  
   const [candidates, setCandidates] = useState([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,9 +43,7 @@ const JoiningCandidateTable = () => {
       const result = await parseJson(response);
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Failed to fetch joining candidates",
-        );
+        throw new Error(result.message || "Failed to fetch joining candidates");
       }
 
       setCandidates(Array.isArray(result.data) ? result.data : []);
@@ -122,7 +120,7 @@ const JoiningCandidateTable = () => {
     setSelectedDesignation("");
     setDesignationError("");
   };
-
+ 
   const handleSaveEmployee = () => {
     if (!selectedDesignation) {
       setDesignationError("Please select a designation.");
@@ -130,8 +128,7 @@ const JoiningCandidateTable = () => {
     }
 
     const selectedDesignationData = designations.find(
-      (designation) =>
-        String(designation.id) === String(selectedDesignation),
+      (designation) => String(designation.id) === String(selectedDesignation),
     );
 
     console.log("Save as Employee:", {
@@ -330,6 +327,9 @@ const JoiningCandidateTable = () => {
                       <div className="flex items-center justify-center gap-2">
                         <button
                           type="button"
+                          onClick={() =>
+                            navigate(`/joining-candidates/edit/${candidate.id}`)
+                          }
                           title="Edit"
                           aria-label="Edit"
                           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
@@ -339,47 +339,16 @@ const JoiningCandidateTable = () => {
 
                         <button
                           type="button"
+                          onClick={() =>
+                            navigate(
+                              `/joining-candidates/documents/${candidate.id}`,
+                            )
+                          }
                           title="Documents"
                           aria-label="Documents"
                           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
                         >
                           <FileText size={16} strokeWidth={1.8} />
-                        </button>
-
-                        <button
-                          type="button"
-                          title="Attendance"
-                          aria-label="Attendance"
-                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
-                        >
-                          <ClipboardCheck size={16} strokeWidth={1.8} />
-                        </button>
-
-                        <button
-                          type="button"
-                          title="Phone"
-                          aria-label="Phone"
-                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
-                        >
-                          <Phone size={16} strokeWidth={1.8} />
-                        </button>
-
-                        <button
-                          type="button"
-                          title="Email"
-                          aria-label="Email"
-                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
-                        >
-                          <Mail size={16} strokeWidth={1.8} />
-                        </button>
-
-                        <button
-                          type="button"
-                          title="Leave"
-                          aria-label="Leave"
-                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
-                        >
-                          <CalendarDays size={16} strokeWidth={1.8} />
                         </button>
 
                         <button
@@ -409,9 +378,7 @@ const JoiningCandidateTable = () => {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() =>
-                  setCurrentPage((p) => Math.max(1, p - 1))
-                }
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-deem-red hover:text-deem-red disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-400"
               >
@@ -485,9 +452,7 @@ const JoiningCandidateTable = () => {
               )}
 
               {designationError && (
-                <p className="mt-2 text-sm text-red-500">
-                  {designationError}
-                </p>
+                <p className="mt-2 text-sm text-red-500">{designationError}</p>
               )}
             </div>
 
