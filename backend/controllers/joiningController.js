@@ -1,25 +1,74 @@
-
+```javascript
 const db = require('../config/db');
 const cloudinary = require('cloudinary').v2;
 const { Resend } = require('resend');
+const path = require('path');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const uploadToCloudinary = (fileBuffer, folder) => {
+// ==========================================
+// CLOUDINARY UPLOAD
+// Supports images, PDF, DOC, DOCX, and other files
+// Folder: test/joining/<field>
+// ==========================================
+const uploadToCloudinary = (file, folder) => {
   return new Promise((resolve, reject) => {
+    if (!file || !file.buffer) {
+      return reject(new Error(`Invalid file provided for ${folder}`));
+    }
+
+    const extension = path.extname(file.originalname || '').toLowerCase();
+
+    const imageExtensions = [
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.webp',
+      '.gif',
+      '.bmp',
+      '.tif',
+      '.tiff',
+    ];
+
+    const isImage = imageExtensions.includes(extension);
+
+    // Images use image resource type.
+    // Documents use raw resource type so DOCX/PDF files are preserved.
+    const resourceType = isImage ? 'image' : 'raw';
+
+    const options = {
+      folder: `test/joining/${folder}`,
+      resource_type: resourceType,
+    };
+
+    // Raw files should retain their file extension in the public ID.
+    if (!isImage) {
+      options.public_id =
+        `${path.parse(file.originalname || 'document').name}_${Date.now()}${extension}`;
+    }
+
     const stream = cloudinary.uploader.upload_stream(
-      { folder: `test/joining/${folder}`, resource_type: "auto" },
+      options,
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
+        if (error) {
+          return reject(error);
+        }
+
+        if (!result || !result.secure_url) {
+          return reject(new Error(`Cloudinary upload failed for ${folder}`));
+        }
+
+        resolve(result);
       }
     );
 
-    stream.end(fileBuffer);
+    stream.end(file.buffer);
   });
 };
 
-// IST date and time
+// ==========================================
+// IST DATE AND TIME
+// ==========================================
 const getISTDateTime = () => {
   const istDate = new Date(
     new Date().toLocaleString('en-US', {
@@ -33,9 +82,14 @@ const getISTDateTime = () => {
     istDate.getMonth() + 1
   )}-${pad(istDate.getDate())} ${pad(
     istDate.getHours()
-  )}:${pad(istDate.getMinutes())}:${pad(istDate.getSeconds())}`;
+  )}:${pad(istDate.getMinutes())}:${pad(
+    istDate.getSeconds()
+  )}`;
 };
 
+// ==========================================
+// CREATE JOINING CANDIDATE
+// ==========================================
 exports.createJoinCandidate = async (req, res) => {
   try {
     const {
@@ -69,109 +123,86 @@ exports.createJoinCandidate = async (req, res) => {
     let passbookUrl = '';
     let pexpUrl = '';
 
-    if (req.files) {
-      // Photo
-      if (req.files.photo) {
-        const r = await uploadToCloudinary(
-          req.files.photo[0].buffer,
-          'photo'
-        );
-        photoUrl = r.secure_url;
-      }
+    const files = req.files || {};
 
-      // Resume
-      if (req.files.resume) {
-        const r = await uploadToCloudinary(
-          req.files.resume[0].buffer,
-          'resume'
-        );
-        resumeUrl = r.secure_url;
-      }
-
-      // Degree
-      if (req.files.degree) {
-        const r = await uploadToCloudinary(
-          req.files.degree[0].buffer,
-          'degree'
-        );
-        degreeUrl = r.secure_url;
-      }
- 
-      if (req.files.aadharc || req.files.aadhar) {
-        const file = req.files.aadharc
-          ? req.files.aadharc[0]
-          : req.files.aadhar[0];
-
-        const r = await uploadToCloudinary(
-          file.buffer,
-          'aadharc'
-        );
-
-        aadharUrl = r.secure_url;
-      }
-
-      // Salary slip
-      if (req.files.sslip) {
-        const r = await uploadToCloudinary(
-          req.files.sslip[0].buffer,
-          'sslip'
-        );
-        sslipUrl = r.secure_url;
-      }
-
-      // Passbook
-      if (req.files.passbook) {
-        const r = await uploadToCloudinary(
-          req.files.passbook[0].buffer,
-          'passbook'
-        );
-        passbookUrl = r.secure_url;
-      }
-
-      // Previous experience document
-      if (req.files.pexp) {
-        const r = await uploadToCloudinary(
-          req.files.pexp[0].buffer,
-          'pexp'
-        );
-        pexpUrl = r.secure_url;
-      }
+    // Photo
+    if (files.photo?.[0]) {
+      const result = await uploadToCloudinary(files.photo[0], 'photo');
+      photoUrl = result.secure_url;
     }
 
-    // IST timestamp
-    const last_update = getISTDateTime();
- 
-    const finalAadhar = aadhar || aadharUrl || '';
- 
-    const finalPexp = pexpUrl || pexp || '';
+    // Resume
+    if (files.resume?.[0]) {
+      const result = await uploadToCloudinary(files.resume[0], 'resume');
+      resumeUrl = result.secure_url;
+    }
 
+    // Degree / qualification document
+    if (files.degree?.[0]) {
+      const result = await uploadToCloudinary(files.degree[0], 'degree');
+      degreeUrl = result.secure_url;
+    }
+
+    // Aadhaar document
+    // Accepts either field name: aadharc or aadhar
+    const aadhaarFile = files.aadharc?.[0] || files.aadhar?.[0];
+
+    if (aadhaarFile) {
+      const result = await uploadToCloudinary(aadhaarFile, 'aadharc');
+      aadharUrl = result.secure_url;
+    }
+
+    // Salary slip
+    if (files.sslip?.[0]) {
+      const result = await uploadToCloudinary(files.sslip[0], 'sslip');
+      sslipUrl = result.secure_url;
+    }
+
+    // Bank passbook
+    if (files.passbook?.[0]) {
+      const result = await uploadToCloudinary(files.passbook[0], 'passbook');
+      passbookUrl = result.secure_url;
+    }
+
+    // Previous experience document
+    if (files.pexp?.[0]) {
+      const result = await uploadToCloudinary(files.pexp[0], 'pexp');
+      pexpUrl = result.secure_url;
+    }
+
+    const last_update = getISTDateTime();
+
+    const finalAadhar = aadhar || aadharUrl || '';
+    const finalPexp = pexpUrl || pexp || '';
     const finalMstatus = mstatus || '';
 
-    const sql = `INSERT INTO join_candidate
-    (
-      ename,
-      fname,
-      dob,
-      gender,
-      address,
-      mobile,
-      email,
-      aadhar,
-      mstatus,
-      qual,
-      hstudy,
-      linkedin,
-      photo,
-      resume,
-      degree,
-      pexp,
-      aadharc,
-      sslip,
-      passbook,
-      status,
-      last_update
-    )
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+    const sql = `
+      INSERT INTO join_candidate
+      (
+        ename,
+        fname,
+        dob,
+        gender,
+        address,
+        mobile,
+        email,
+        aadhar,
+        mstatus,
+        qual,
+        hstudy,
+        linkedin,
+        photo,
+        resume,
+        degree,
+        pexp,
+        aadharc,
+        sslip,
+        passbook,
+        status,
+        last_update
+      )
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `;
 
     const values = [
       ename || '',
@@ -201,8 +232,8 @@ exports.createJoinCandidate = async (req, res) => {
 
     // ==========================================
     // RESEND EMAIL
+    // Email failure will not fail the application.
     // ==========================================
-    // Email failure should NOT fail the joining form.
     try {
       await resend.emails.send({
         from: process.env.EMAIL_FROM,
@@ -211,11 +242,11 @@ exports.createJoinCandidate = async (req, res) => {
         html: `
           <h2>New Joining Form Submitted</h2>
 
-          <p><b>Name:</b> ${ename}</p>
-          <p><b>Father Name:</b> ${fname}</p>
-          <p><b>DOB:</b> ${dob}</p>
-          <p><b>Gender:</b> ${gender}</p>
-          <p><b>Address:</b> ${address}</p>
+          <p><b>Name:</b> ${ename || ''}</p>
+          <p><b>Father Name:</b> ${fname || ''}</p>
+          <p><b>DOB:</b> ${dob || ''}</p>
+          <p><b>Gender:</b> ${gender || ''}</p>
+          <p><b>Address:</b> ${address || ''}</p>
           <p><b>Mobile:</b> ${mobile}</p>
           <p><b>Email:</b> ${email}</p>
           <p><b>Aadhar No:</b> ${aadhar || ''}</p>
@@ -228,29 +259,25 @@ exports.createJoinCandidate = async (req, res) => {
           <hr />
 
           <p style="font-size:12px;color:#888;">
-            Note: Photos and documents are stored in DB/Cloudinary only,
-            not sent in email.
+            Photos and documents are stored in Cloudinary.
+            Document files are not attached to this email.
           </p>
         `,
       });
     } catch (mailErr) {
-      console.error(
-        'Joining email failed:',
-        mailErr.message
-      );
+      console.error('Joining email failed:', mailErr.message);
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Application submitted',
       id: result.insertId,
       last_update,
     });
-
   } catch (err) {
-    console.error(err);
+    console.error('Create joining candidate error:', err);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Server error',
       error: err.message,
@@ -258,24 +285,32 @@ exports.createJoinCandidate = async (req, res) => {
   }
 };
 
+// ==========================================
+// GET ALL CANDIDATES
+// ==========================================
 exports.getAllCandidates = async (req, res) => {
   try {
     const [rows] = await db.execute(
       'SELECT * FROM join_candidate ORDER BY id DESC'
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: rows,
     });
   } catch (err) {
-    res.status(500).json({
+    console.error('Get all candidates error:', err);
+
+    return res.status(500).json({
       success: false,
       error: err.message,
     });
   }
 };
 
+// ==========================================
+// GET CANDIDATE BY ID
+// ==========================================
 exports.getCandidateById = async (req, res) => {
   try {
     const [rows] = await db.execute(
@@ -290,57 +325,69 @@ exports.getCandidateById = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: rows[0],
     });
   } catch (err) {
-    res.status(500).json({
+    console.error('Get candidate by ID error:', err);
+
+    return res.status(500).json({
       success: false,
       error: err.message,
     });
   }
 };
 
+// ==========================================
+// UPDATE CANDIDATE STATUS
+// ==========================================
 exports.updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
-
     const last_update = getISTDateTime();
 
     await db.execute(
-      'UPDATE join_candidate SET status=?, last_update=? WHERE id=?',
+      'UPDATE join_candidate SET status = ?, last_update = ? WHERE id = ?',
       [status, last_update, req.params.id]
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Status updated',
       last_update,
     });
   } catch (err) {
-    res.status(500).json({
+    console.error('Update candidate status error:', err);
+
+    return res.status(500).json({
       success: false,
       error: err.message,
     });
   }
 };
 
+// ==========================================
+// DELETE CANDIDATE
+// ==========================================
 exports.deleteCandidate = async (req, res) => {
   try {
     await db.execute(
-      'DELETE FROM join_candidate WHERE id=?',
+      'DELETE FROM join_candidate WHERE id = ?',
       [req.params.id]
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Deleted',
     });
   } catch (err) {
-    res.status(500).json({
+    console.error('Delete candidate error:', err);
+
+    return res.status(500).json({
       success: false,
       error: err.message,
     });
   }
 };
+```
