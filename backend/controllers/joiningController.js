@@ -8,60 +8,63 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ==========================================
 // CLOUDINARY UPLOAD
-// Supports images, PDF, DOC, DOCX, and other files
-// Folder: test/joining/<field>
+// Folder: test/joining/<folder>
+// Supports images, PDF, DOC, DOCX, and raw files
 // ==========================================
 const uploadToCloudinary = (file, folder) => {
   return new Promise((resolve, reject) => {
-    if (!file || !file.buffer) {
-      return reject(new Error(`Invalid file provided for ${folder}`));
+    if (!file || !Buffer.isBuffer(file.buffer)) {
+      return reject(new Error(`Missing file buffer: ${folder}`));
     }
 
-    const extension = path.extname(file.originalname || '').toLowerCase();
+    const originalName = file.originalname || 'document';
+    const extension = path.extname(originalName).toLowerCase();
 
     const imageExtensions = [
-      '.jpg',
-      '.jpeg',
-      '.png',
-      '.webp',
-      '.gif',
-      '.bmp',
-      '.tif',
-      '.tiff',
+      '.jpg', '.jpeg', '.png', '.webp',
+      '.gif', '.bmp', '.tif', '.tiff',
     ];
 
     const isImage = imageExtensions.includes(extension);
 
-    // Images use image resource type.
-    // Documents use raw resource type so DOCX/PDF files are preserved.
-    const resourceType = isImage ? 'image' : 'raw';
-
     const options = {
       folder: `test/joining/${folder}`,
-      resource_type: resourceType,
+      resource_type: isImage ? 'image' : 'raw',
     };
 
-    // Raw files should retain their file extension in the public ID.
     if (!isImage) {
+      const safeName = path.parse(originalName).name
+        .replace(/[^a-zA-Z0-9_-]/g, '_');
+
       options.public_id =
-        `${path.parse(file.originalname || 'document').name}_${Date.now()}${extension}`;
+        `${safeName || 'document'}_${Date.now()}_${Math.random()
+          .toString(36).slice(2, 8)}${extension}`;
     }
 
     const stream = cloudinary.uploader.upload_stream(
       options,
       (error, result) => {
         if (error) {
+          console.error(`Cloudinary upload failed (${folder}):`, error);
           return reject(error);
         }
 
-        if (!result || !result.secure_url) {
-          return reject(new Error(`Cloudinary upload failed for ${folder}`));
+        if (!result?.secure_url) {
+          return reject(
+            new Error(`Cloudinary returned no URL for ${folder}`)
+          );
         }
+
+        console.log(`Cloudinary upload successful (${folder}):`, {
+          public_id: result.public_id,
+          resource_type: result.resource_type,
+        });
 
         resolve(result);
       }
     );
 
+    stream.on('error', reject);
     stream.end(file.buffer);
   });
 };
@@ -92,6 +95,8 @@ const getISTDateTime = () => {
 // ==========================================
 exports.createJoinCandidate = async (req, res) => {
   try {
+    console.log('Joining form received');
+
     const {
       ename,
       fname,
@@ -115,6 +120,9 @@ exports.createJoinCandidate = async (req, res) => {
       });
     }
 
+    const files = req.files || {};
+
+    // File URLs are empty when a file was not provided.
     let photoUrl = '';
     let resumeUrl = '';
     let degreeUrl = '';
@@ -123,62 +131,61 @@ exports.createJoinCandidate = async (req, res) => {
     let passbookUrl = '';
     let pexpUrl = '';
 
-    const files = req.files || {};
-
-    // Photo
+    // Upload files to Cloudinary.
     if (files.photo?.[0]) {
-      const result = await uploadToCloudinary(files.photo[0], 'photo');
-      photoUrl = result.secure_url;
+      photoUrl = (
+        await uploadToCloudinary(files.photo[0], 'photo')
+      ).secure_url;
     }
 
-    // Resume
     if (files.resume?.[0]) {
-      const result = await uploadToCloudinary(files.resume[0], 'resume');
-      resumeUrl = result.secure_url;
+      resumeUrl = (
+        await uploadToCloudinary(files.resume[0], 'resume')
+      ).secure_url;
     }
 
-    // Degree / qualification document
     if (files.degree?.[0]) {
-      const result = await uploadToCloudinary(files.degree[0], 'degree');
-      degreeUrl = result.secure_url;
+      degreeUrl = (
+        await uploadToCloudinary(files.degree[0], 'degree')
+      ).secure_url;
     }
 
-    // Aadhaar document
-    // Accepts either field name: aadharc or aadhar
-    const aadhaarFile = files.aadharc?.[0] || files.aadhar?.[0];
+    const aadhaarFile =
+      files.aadharc?.[0] || files.aadhar?.[0];
 
     if (aadhaarFile) {
-      const result = await uploadToCloudinary(aadhaarFile, 'aadharc');
-      aadharUrl = result.secure_url;
+      aadharUrl = (
+        await uploadToCloudinary(aadhaarFile, 'aadharc')
+      ).secure_url;
     }
 
-    // Salary slip
     if (files.sslip?.[0]) {
-      const result = await uploadToCloudinary(files.sslip[0], 'sslip');
-      sslipUrl = result.secure_url;
+      sslipUrl = (
+        await uploadToCloudinary(files.sslip[0], 'sslip')
+      ).secure_url;
     }
 
-    // Bank passbook
     if (files.passbook?.[0]) {
-      const result = await uploadToCloudinary(files.passbook[0], 'passbook');
-      passbookUrl = result.secure_url;
+      passbookUrl = (
+        await uploadToCloudinary(files.passbook[0], 'passbook')
+      ).secure_url;
     }
 
-    // Previous experience document
     if (files.pexp?.[0]) {
-      const result = await uploadToCloudinary(files.pexp[0], 'pexp');
-      pexpUrl = result.secure_url;
+      pexpUrl = (
+        await uploadToCloudinary(files.pexp[0], 'pexp')
+      ).secure_url;
     }
 
     const last_update = getISTDateTime();
 
+    // Preserve your existing database field behavior.
     const finalAadhar = aadhar || aadharUrl || '';
     const finalPexp = pexpUrl || pexp || '';
     const finalMstatus = mstatus || '';
 
     const sql = `
-      INSERT INTO join_candidate
-      (
+      INSERT INTO join_candidate (
         ename,
         fname,
         dob,
@@ -201,7 +208,7 @@ exports.createJoinCandidate = async (req, res) => {
         status,
         last_update
       )
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -228,59 +235,109 @@ exports.createJoinCandidate = async (req, res) => {
       last_update,
     ];
 
-    const [result] = await db.execute(sql, values);
+    // ==========================================
+    // SAVE TO MYSQL FIRST
+    // ==========================================
+    let result;
 
-    // ==========================================
-    // RESEND EMAIL
-    // Email failure will not fail the application.
-    // ==========================================
     try {
-      await resend.emails.send({
-        from: process.env.EMAIL_FROM,
-        to: process.env.EMAIL_TO,
-        subject: `New Joining: ${ename} - ${mobile}`,
-        html: `
-          <h2>New Joining Form Submitted</h2>
+      const [dbResult] = await db.execute(sql, values);
+      result = dbResult;
 
-          <p><b>Name:</b> ${ename || ''}</p>
-          <p><b>Father Name:</b> ${fname || ''}</p>
-          <p><b>DOB:</b> ${dob || ''}</p>
-          <p><b>Gender:</b> ${gender || ''}</p>
-          <p><b>Address:</b> ${address || ''}</p>
-          <p><b>Mobile:</b> ${mobile}</p>
-          <p><b>Email:</b> ${email}</p>
-          <p><b>Aadhar No:</b> ${aadhar || ''}</p>
-          <p><b>Marital Status:</b> ${mstatus || ''}</p>
-          <p><b>Qualification:</b> ${qual || ''}</p>
-          <p><b>Higher Study:</b> ${hstudy || ''}</p>
-          <p><b>Linkedin / Experience:</b> ${linkedin || ''}</p>
-          <p><b>Previous Exp (Text):</b> ${pexp || ''}</p>
+      if (!result.affectedRows) {
+        throw new Error('MySQL did not insert the joining record');
+      }
 
-          <hr />
-
-          <p style="font-size:12px;color:#888;">
-            Photos and documents are stored in Cloudinary.
-            Document files are not attached to this email.
-          </p>
-        `,
+      console.log('JOINING RECORD SAVED:', {
+        insertId: result.insertId,
+        affectedRows: result.affectedRows,
+        email,
       });
-    } catch (mailErr) {
-      console.error('Joining email failed:', mailErr.message);
+    } catch (dbErr) {
+      console.error('JOINING DATABASE INSERT FAILED:', {
+        message: dbErr.message,
+        code: dbErr.code,
+        sqlMessage: dbErr.sqlMessage,
+        sqlState: dbErr.sqlState,
+      });
+
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to save joining candidate in database',
+        error: dbErr.sqlMessage || dbErr.message,
+        code: dbErr.code || null,
+      });
     }
 
-    return res.json({
+    // ==========================================
+    // SEND EMAIL AFTER DATABASE INSERT
+    // Email failure does not undo the database insert.
+    // ==========================================
+    let emailSent = false;
+
+    try {
+      if (
+        process.env.RESEND_API_KEY &&
+        process.env.EMAIL_FROM &&
+        process.env.EMAIL_TO
+      ) {
+        const emailResult = await resend.emails.send({
+          from: process.env.EMAIL_FROM,
+          to: process.env.EMAIL_TO,
+          subject: `New Joining: ${ename} - ${mobile}`,
+          html: `
+            <h2>New Joining Form Submitted</h2>
+            <p><b>Name:</b> ${ename || ''}</p>
+            <p><b>Father Name:</b> ${fname || ''}</p>
+            <p><b>DOB:</b> ${dob || ''}</p>
+            <p><b>Gender:</b> ${gender || ''}</p>
+            <p><b>Address:</b> ${address || ''}</p>
+            <p><b>Mobile:</b> ${mobile}</p>
+            <p><b>Email:</b> ${email}</p>
+            <p><b>Aadhaar No:</b> ${aadhar || ''}</p>
+            <p><b>Marital Status:</b> ${mstatus || ''}</p>
+            <p><b>Qualification:</b> ${qual || ''}</p>
+            <p><b>Higher Study:</b> ${hstudy || ''}</p>
+            <p><b>LinkedIn / Experience:</b> ${linkedin || ''}</p>
+            <p><b>Previous Experience (Text):</b> ${pexp || ''}</p>
+            <hr />
+            <p style="font-size:12px;color:#888;">
+              Documents are stored in Cloudinary and are not
+              attached to this email.
+            </p>
+          `,
+        });
+
+        if (emailResult?.error) {
+          console.error('Resend email error:', emailResult.error);
+        } else {
+          emailSent = true;
+        }
+      } else {
+        console.warn(
+          'Email skipped: RESEND_API_KEY, EMAIL_FROM, or EMAIL_TO is missing'
+        );
+      }
+    } catch (mailErr) {
+      console.error('Joining email failed:', mailErr);
+    }
+
+    // The database insert has succeeded at this point.
+    return res.status(201).json({
       success: true,
-      message: 'Application submitted',
+      message: 'Application saved successfully',
       id: result.insertId,
       last_update,
+      emailSent,
     });
   } catch (err) {
-    console.error('Create joining candidate error:', err);
+    console.error('CREATE JOINING CANDIDATE FAILED:', err);
 
     return res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: 'Failed to submit joining application',
       error: err.message,
+      code: err.code || null,
     });
   }
 };
@@ -299,11 +356,12 @@ exports.getAllCandidates = async (req, res) => {
       data: rows,
     });
   } catch (err) {
-    console.error('Get all candidates error:', err);
+    console.error('GET ALL CANDIDATES FAILED:', err);
 
     return res.status(500).json({
       success: false,
       error: err.message,
+      code: err.code || null,
     });
   }
 };
@@ -321,7 +379,7 @@ exports.getCandidateById = async (req, res) => {
     if (!rows.length) {
       return res.status(404).json({
         success: false,
-        message: 'Not found',
+        message: 'Candidate not found',
       });
     }
 
@@ -330,11 +388,12 @@ exports.getCandidateById = async (req, res) => {
       data: rows[0],
     });
   } catch (err) {
-    console.error('Get candidate by ID error:', err);
+    console.error('GET CANDIDATE BY ID FAILED:', err);
 
     return res.status(500).json({
       success: false,
       error: err.message,
+      code: err.code || null,
     });
   }
 };
@@ -347,10 +406,17 @@ exports.updateStatus = async (req, res) => {
     const { status } = req.body;
     const last_update = getISTDateTime();
 
-    await db.execute(
+    const [result] = await db.execute(
       'UPDATE join_candidate SET status = ?, last_update = ? WHERE id = ?',
       [status, last_update, req.params.id]
     );
+
+    if (!result.affectedRows) {
+      return res.status(404).json({
+        success: false,
+        message: 'Candidate not found or status unchanged',
+      });
+    }
 
     return res.json({
       success: true,
@@ -358,11 +424,12 @@ exports.updateStatus = async (req, res) => {
       last_update,
     });
   } catch (err) {
-    console.error('Update candidate status error:', err);
+    console.error('UPDATE STATUS FAILED:', err);
 
     return res.status(500).json({
       success: false,
       error: err.message,
+      code: err.code || null,
     });
   }
 };
@@ -372,21 +439,29 @@ exports.updateStatus = async (req, res) => {
 // ==========================================
 exports.deleteCandidate = async (req, res) => {
   try {
-    await db.execute(
+    const [result] = await db.execute(
       'DELETE FROM join_candidate WHERE id = ?',
       [req.params.id]
     );
 
+    if (!result.affectedRows) {
+      return res.status(404).json({
+        success: false,
+        message: 'Candidate not found',
+      });
+    }
+
     return res.json({
       success: true,
-      message: 'Deleted',
+      message: 'Candidate deleted successfully',
     });
   } catch (err) {
-    console.error('Delete candidate error:', err);
+    console.error('DELETE CANDIDATE FAILED:', err);
 
     return res.status(500).json({
       success: false,
       error: err.message,
+      code: err.code || null,
     });
   }
 };
