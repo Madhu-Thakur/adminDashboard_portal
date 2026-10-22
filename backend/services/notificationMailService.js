@@ -13,7 +13,8 @@ const sendNotificationMail = async ({
     const resend = await getResend();
 
     const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM,
+      // from: process.env.EMAIL_FROM,
+       from: `ASWEBWORKS LLP <${process.env.EMAIL_FROM}>`,
       to: employeeEmail,
       subject: "New Notification - DEEM",
       html: `
