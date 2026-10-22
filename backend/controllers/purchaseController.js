@@ -1,4 +1,3 @@
-
 const {
   createPurchase,
   getAllPurchases,
@@ -31,13 +30,15 @@ const addPurchase = async (req, res) => {
       });
     }
  
+    // Total Amount is still required
     if (tamount === undefined || tamount === null || tamount === "") {
       return res.status(400).json({
         success: false,
         message: "Total Amount is required",
       });
     }
-  
+ 
+    // Blank GST Amount defaults to zero
     const totalGst =
       gstAmount === undefined ||
       gstAmount === null ||
@@ -60,7 +61,8 @@ const addPurchase = async (req, res) => {
         message: "Total Amount must be a valid non-negative number",
       });
     }
-  
+ 
+    // GST Type is required only when GST Amount is greater than zero
     if (totalGst > 0 && !["state", "other"].includes(gstType)) {
       return res.status(400).json({
         success: false,
@@ -85,18 +87,18 @@ const addPurchase = async (req, res) => {
     let fileName = null;
 if (req.file) {
   fileName = req.file.originalname;
- 
+
   const extension = require("path")
     .extname(fileName)
     .toLowerCase();
- 
+
   const resourceType = [".jpg", ".jpeg", ".png"].includes(extension)
     ? "image"
     : "raw";
- 
+
   const publicId =
     `${Date.now()}-${fileName.replace(/[^\w.-]/g, "_")}`;
- 
+
   const result = await new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -109,12 +111,13 @@ if (req.file) {
         resolve(result);
       }
     );
- 
+
     stream.end(req.file.buffer);
   });
- 
+
   fileUrl = result.secure_url;
 }
+ 
  
  
     const purchaseId = await createPurchase({
@@ -211,4 +214,3 @@ module.exports = {
   getPurchases,
   getPurchase,
 };
- 

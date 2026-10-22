@@ -1,3 +1,4 @@
+
 const db = require('../config/db');
 const cloudinary = require('cloudinary').v2;
 const { Resend } = require('resend');
@@ -206,8 +207,6 @@ exports.createJoinCandidate = async (req, res) => {
       await resend.emails.send({
         from: process.env.EMAIL_FROM,
         to: process.env.EMAIL_TO,
-
-
         subject: `New Joining: ${ename} - ${mobile}`,
         html: `
           <h2>New Joining Form Submitted</h2>
