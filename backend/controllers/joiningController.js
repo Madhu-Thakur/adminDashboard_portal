@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const uploadToCloudinary = (fileBuffer, folder) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: `test/joining/${folder}`, resource_type: "auto" },
+      { folder: `deem/joining/${folder}`, resource_type: "auto" },
       (error, result) => {
         if (error) reject(error);
         else resolve(result);
@@ -205,7 +205,8 @@ exports.createJoinCandidate = async (req, res) => {
     // Email failure should NOT fail the joining form.
     try {
       await resend.emails.send({
-        from: process.env.EMAIL_FROM,
+         // from: process.env.EMAIL_FROM,
+      from: `ASWEBWORKS LLP <${process.env.EMAIL_FROM}>`,
         to: process.env.EMAIL_TO,
         subject: `New Joining: ${ename} - ${mobile}`,
         html: `
