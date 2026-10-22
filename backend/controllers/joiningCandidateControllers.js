@@ -19,6 +19,7 @@ const DOCUMENT_FIELDS = [
   "aadharc",
   "sslip",
   "passbook",
+  "pexp",
 ];
 
 // Upload file buffer to Cloudinary
@@ -26,8 +27,8 @@ const uploadToCloudinary = (fileBuffer, folder) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: `deem/joining/${folder}`,
-        resource_type: "auto",
+        folder: `test/joining/${folder}`,
+        resource_type: "raw",
       },
       (error, result) => {
         if (error) {

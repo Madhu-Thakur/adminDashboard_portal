@@ -19,6 +19,8 @@ body {
   min-height: 100vh;
 }
 
+ 
+
 /* Native date input picker indicator visibility */
 input[type="date"] {
   color-scheme: light;
@@ -28,12 +30,18 @@ html.dark input[type="date"] {
   color-scheme: dark;
 }
 
-/* WebKit/Chromium: ensure the calendar icon is light in dark mode and
-   tinted DEEM red on hover where the platform allows it. */
+/* White calendar icon in dark mode */
 html.dark input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
+  cursor: pointer;
 }
 
 html.dark input[type="date"]:hover::-webkit-calendar-picker-indicator {
-  filter: invert(1) sepia(1) saturate(5) hue-rotate(-5deg);
+  filter: invert(1);
+}
+
+html.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
+  cursor: pointer;
 }
