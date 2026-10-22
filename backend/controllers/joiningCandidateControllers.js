@@ -5,7 +5,6 @@ const {
   updateJoiningCandidate,
   deleteJoiningCandidate,
   saveCandidateAsEmployee,
-  rejectJoiningCandidate,
 } = require("../models/joiningCandidateModel");
 
 const cloudinary = require("../config/cloudinary");
@@ -27,8 +26,8 @@ const uploadToCloudinary = (fileBuffer, folder) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: `test/joining/${folder}`,
-        resource_type: "raw",
+        folder: `deem/joining/${folder}`,
+        resource_type: "auto",
       },
       (error, result) => {
         if (error) {
@@ -298,47 +297,6 @@ const getJoiningCandidate = async (req, res) => {
       success: false,
       message: "Failed to fetch joining candidate",
       error: error.message,
-    });
-  }
-};
-// POST - Reject Joining Candidate
-const rejectCandidate = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!id || !/^\d+$/.test(String(id))) {
-      return res.status(400).json({
-        success: false,
-        message: "A valid joining candidate ID is required",
-      });
-    }
-
-    await rejectJoiningCandidate(id);
-
-    return res.status(200).json({
-      success: true,
-      message: "Joining candidate rejected successfully",
-    });
-  } catch (error) {
-    if (error.message === "Joining candidate not found") {
-      return res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-    }
-
-    if (error.message === "Only pending candidates can be rejected") {
-      return res.status(409).json({
-        success: false,
-        message: error.message,
-      });
-    }
-
-    console.error("Reject Joining Candidate Error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to reject joining candidate",
     });
   }
 };
