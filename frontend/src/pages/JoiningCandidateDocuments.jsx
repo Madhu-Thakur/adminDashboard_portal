@@ -1,12 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, FileText, ExternalLink } from "lucide-react";
 
-import {
-  JOINING_CANDIDATE_API_URL,
-  parseJson,
-} from "../utils/api";
+import { JOINING_CANDIDATE_API_URL, parseJson } from "../utils/api";
 
 const documentFields = [
   { key: "photo", label: "Photo" },
@@ -31,15 +27,13 @@ const JoiningCandidateDocuments = () => {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `${JOINING_CANDIDATE_API_URL}/${id}`
-        );
+        const response = await fetch(`${JOINING_CANDIDATE_API_URL}/${id}`);
 
         const result = await parseJson(response);
 
         if (!response.ok || result.success === false) {
           throw new Error(
-            result.message || "Failed to fetch candidate documents."
+            result.message || "Failed to fetch candidate documents.",
           );
         }
 
@@ -72,9 +66,7 @@ const JoiningCandidateDocuments = () => {
   if (error || !candidate) {
     return (
       <div className="p-6">
-        <p className="mb-4 text-red-600">
-          {error || "Candidate not found."}
-        </p>
+        <p className="mb-4 text-red-600">{error || "Candidate not found."}</p>
         <button
           type="button"
           onClick={() => navigate("/joining-candidates")}
