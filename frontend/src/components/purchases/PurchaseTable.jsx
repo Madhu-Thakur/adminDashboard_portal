@@ -193,3 +193,5 @@ const PurchaseTable = ({ purchases = [] }) => {
 };
 
 export default PurchaseTable;
+
+ 

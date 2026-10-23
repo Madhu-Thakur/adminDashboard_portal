@@ -4,7 +4,6 @@
   ChevronRight,
   X,
   UserRoundPlus,
-  Pencil,
   FileText,
   UserRound,
  
@@ -325,18 +324,6 @@ const JoiningCandidateTable = () => {
 
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            navigate(`/joining-candidates/edit/${candidate.id}`)
-                          }
-                          title="Edit"
-                          aria-label="Edit"
-                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-deem-blue hover:text-deem-blue dark:border-gray-700 dark:bg-[#11161c]"
-                        >
-                          <Pencil size={16} strokeWidth={1.8} />
-                        </button>
-
                         <button
                           type="button"
                           onClick={() =>

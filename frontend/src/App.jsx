@@ -21,7 +21,7 @@ import AddAnnouncement from "./pages/AddAnnouncement";
 import Notifications from "./pages/Notifications";
 import AddNotification from "./pages/AddNotification";
 import JoiningCandidates from "./pages/JoiningCandidates";
-import EditJoiningCandidate from "./pages/EditJoiningCandidate"; 
+  
 import JoiningCandidateDocuments from "./pages/JoiningCandidateDocuments"; 
 import Employees from "./pages/Employees";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -60,10 +60,7 @@ const App = () => {
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/invoices/add" element={<AddInvoice />} />
             <Route path="/joining-candidates" element={<JoiningCandidates />} />
-            <Route
-              path="/joining-candidates/edit/:id"
-              element={<EditJoiningCandidate />}
-            />
+         
             <Route
               path="/joining-candidates/documents/:id"
               element={<JoiningCandidateDocuments />}
