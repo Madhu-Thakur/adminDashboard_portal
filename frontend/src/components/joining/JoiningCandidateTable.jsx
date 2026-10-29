@@ -32,6 +32,8 @@ const JoiningCandidateTable = () => {
   const [selectedDesignation, setSelectedDesignation] = useState("");
   const [designationLoading, setDesignationLoading] = useState(false);
   const [designationError, setDesignationError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState("");
 
   const fetchCandidates = async () => {
     try {
@@ -94,6 +96,7 @@ const JoiningCandidateTable = () => {
     setSelectedCandidate(candidate);
     setSelectedDesignation("");
     setDesignationError("");
+    setSaveSuccess("");
     setDesignationLoading(true);
 
     try {
@@ -118,24 +121,52 @@ const JoiningCandidateTable = () => {
     setSelectedCandidate(null);
     setSelectedDesignation("");
     setDesignationError("");
+    setSaveSuccess("");
   };
  
-  const handleSaveEmployee = () => {
+  const handleSaveEmployee = async () => {
     if (!selectedDesignation) {
       setDesignationError("Please select a designation.");
       return;
     }
 
-    const selectedDesignationData = designations.find(
-      (designation) => String(designation.id) === String(selectedDesignation),
-    );
+    if (!selectedCandidate) {
+      setDesignationError("No candidate selected.");
+      return;
+    }
 
-    console.log("Save as Employee:", {
-      candidate: selectedCandidate,
-      designation: selectedDesignationData,
-    });
+    setSaving(true);
+    setDesignationError("");
+    setSaveSuccess("");
 
-    handleCloseModal();
+    try {
+      const token = localStorage.getItem("access_token");
+      const response = await fetch(
+        `${JOINING_CANDIDATE_API_URL}/${selectedCandidate.id}/save-as-employee`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ designationId: Number(selectedDesignation) }),
+        }
+      );
+      const result = await parseJson(response);
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Failed to save candidate as employee.");
+      }
+
+      setSaveSuccess("Candidate saved as employee successfully.");
+      await fetchCandidates();
+      handleCloseModal();
+    } catch (err) {
+      setDesignationError(err.message || "Failed to save candidate as employee.");
+      console.error("Save Candidate As Employee Error:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -152,6 +183,14 @@ const JoiningCandidateTable = () => {
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-[#11161c]">
         <p className="text-sm text-gray-500 dark:text-gray-400">{error}</p>
+      </div>
+    );
+  }
+
+  if (saveSuccess) {
+    return (
+      <div className="rounded-2xl border border-green-200 bg-green-50 p-8 text-center shadow-sm dark:border-gray-700 dark:bg-[#11161c]">
+        <p className="text-sm text-green-700 dark:text-green-400">{saveSuccess}</p>
       </div>
     );
   }
@@ -455,10 +494,10 @@ const JoiningCandidateTable = () => {
               <button
                 type="button"
                 onClick={handleSaveEmployee}
-                disabled={designationLoading}
+                disabled={designationLoading || saving}
                 className="cursor-pointer rounded-lg bg-deem-red px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Save
+                {saving ? "Saving…" : "Save"}
               </button>
             </div>
           </div>

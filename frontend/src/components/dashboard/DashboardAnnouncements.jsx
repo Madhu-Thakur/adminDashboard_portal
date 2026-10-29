@@ -4,49 +4,57 @@ import { ANNOUNCEMENT_API_URL } from "../../utils/api";
 
 const DashboardAnnouncements = () => {
   const [announcements, setAnnouncements] = useState([]);
+  const [error, setError] = useState("");
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch(
-        ANNOUNCEMENT_API_URL
-      );
+      setError("");
+      const response = await fetch(ANNOUNCEMENT_API_URL);
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.message || `Failed to fetch announcements (${response.status})`);
+      }
 
       const result = await response.json();
 
-      if (result.success) {
-        const activeAnnouncements = (result.data || []).filter(
-          (announcement) => {
-            if (Number(announcement.status) !== 1) {
-              return false;
-            }
-            if (
-              !announcement.expiry_date ||
-              !announcement.expiry_time
-            ) {
-              return true;
-            }
-
-            const expiryDate = new Date(announcement.expiry_date);
-
-            const year = expiryDate.getFullYear();
-            const month = String(expiryDate.getMonth() + 1).padStart(
-              2,
-              "0"
-            );
-            const day = String(expiryDate.getDate()).padStart(2, "0");
-
-            const expiryDateTime = new Date(
-              `${year}-${month}-${day}T${announcement.expiry_time}`
-            );
-
-            return expiryDateTime > new Date();
-          }
-        );
-
-        setAnnouncements(activeAnnouncements);
+      if (!result.success) {
+        throw new Error(result.message || "Failed to fetch announcements");
       }
-    } catch (error) {
-      console.error("Fetch Announcements Error:", error);
+
+      const activeAnnouncements = (result.data || []).filter(
+        (announcement) => {
+          if (Number(announcement.status) !== 1) {
+            return false;
+          }
+          if (
+            !announcement.expiry_date ||
+            !announcement.expiry_time
+          ) {
+            return true;
+          }
+
+          const expiryDate = new Date(announcement.expiry_date);
+
+          const year = expiryDate.getFullYear();
+          const month = String(expiryDate.getMonth() + 1).padStart(
+            2,
+            "0"
+          );
+          const day = String(expiryDate.getDate()).padStart(2, "0");
+
+          const expiryDateTime = new Date(
+            `${year}-${month}-${day}T${announcement.expiry_time}`
+          );
+
+          return expiryDateTime > new Date();
+        }
+      );
+
+      setAnnouncements(activeAnnouncements);
+    } catch (err) {
+      console.error("Fetch Announcements Error:", err);
+      setError(err.message || "Unable to load announcements.");
     }
   };
 
@@ -54,8 +62,16 @@ const DashboardAnnouncements = () => {
     fetchAnnouncements();
   }, []);
 
-  if (announcements.length === 0) {
+  if (announcements.length === 0 && !error) {
     return null;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-deem-red/20 bg-red-50 p-4 text-center dark:border-gray-700 dark:bg-[#11161c]">
+        <p className="text-sm text-deem-red dark:text-red-400">{error}</p>
+      </div>
+    );
   }
 
   return (
